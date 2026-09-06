@@ -1,201 +1,207 @@
 --==================================================
 -- YAMIN HUB V2
 -- PART 1
--- CORE UI ENGINE
+-- CORE HUB ENGINE
 --==================================================
+
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
-local Player = Players.LocalPlayer
+
+local LocalPlayer = Players.LocalPlayer
 
 
 --==================================================
--- MAIN TABLE
+-- MAIN FRAMEWORK
 --==================================================
+
 
 local Yamin = {}
 
-Yamin.Tabs = {}
-Yamin.CurrentTab = nil
-
-
---==================================================
--- THEME
---==================================================
+Yamin.Version = "V2"
 
 Yamin.Theme = {
 
-    Background = Color3.fromRGB(5,10,25),
-
-    Sidebar = Color3.fromRGB(10,20,50),
-
-    Card = Color3.fromRGB(15,30,70),
-
-    Accent = Color3.fromRGB(0,140,255),
-
-    Text = Color3.fromRGB(240,240,255)
+    Background = Color3.fromRGB(6,10,25),
+    Sidebar = Color3.fromRGB(10,18,45),
+    Card = Color3.fromRGB(15,28,65),
+    Accent = Color3.fromRGB(0,145,255),
+    Accent2 = Color3.fromRGB(0,210,255),
+    Text = Color3.fromRGB(235,240,255),
+    Muted = Color3.fromRGB(150,160,190)
 
 }
 
 
-
---==================================================
--- SCREEN GUI
---==================================================
-
-local Gui = Instance.new("ScreenGui")
-
-Gui.Name = "YaminHubV2"
-
-Gui.ResetOnSpawn = false
-
-Gui.Parent = Player:WaitForChild("PlayerGui")
+Yamin.Pages = {}
+Yamin.Elements = {}
 
 
 
 --==================================================
--- MAIN WINDOW
+-- GUI CREATION
 --==================================================
+
+
+local ScreenGui = Instance.new("ScreenGui")
+
+ScreenGui.Name = "YaminHubV2"
+
+ScreenGui.ResetOnSpawn = false
+
+ScreenGui.Parent =
+LocalPlayer:WaitForChild("PlayerGui")
+
+
+
 
 local Main = Instance.new("Frame")
 
-Main.Size = UDim2.fromOffset(900,550)
+Main.Name = "Main"
+
+Main.Size =
+UDim2.fromOffset(950,600)
+
 
 Main.Position =
 UDim2.new(
 0.5,
--450,
+-475,
 0.5,
--275
+-300
 )
+
 
 Main.BackgroundColor3 =
 Yamin.Theme.Background
 
+
 Main.BorderSizePixel = 0
 
-Main.Parent = Gui
+
+Main.Parent =
+ScreenGui
 
 
 
-local Corner = Instance.new("UICorner")
+local MainCorner = Instance.new("UICorner")
 
-Corner.CornerRadius =
-UDim.new(0,16)
+MainCorner.CornerRadius =
+UDim.new(0,18)
 
-Corner.Parent = Main
+MainCorner.Parent = Main
 
 
 
-local Stroke = Instance.new("UIStroke")
+local MainStroke = Instance.new("UIStroke")
 
-Stroke.Color =
+MainStroke.Color =
 Yamin.Theme.Accent
 
-Stroke.Thickness = 2
 
-Stroke.Parent = Main
+MainStroke.Thickness = 2
 
-
-
---==================================================
--- DRAG SYSTEM
---==================================================
-
-local Dragging = false
-
-local DragStart
-
-local StartPos
+MainStroke.Parent = Main
 
 
-Main.InputBegan:Connect(function(input)
-
-    if input.UserInputType ==
-    Enum.UserInputType.MouseButton1 then
-
-        Dragging = true
-
-        DragStart =
-        input.Position
-
-        StartPos =
-        Main.Position
-
-    end
-
-end)
-
-
-
-Main.InputEnded:Connect(function(input)
-
-    if input.UserInputType ==
-    Enum.UserInputType.MouseButton1 then
-
-        Dragging = false
-
-    end
-
-end)
-
-
-
-UserInputService.InputChanged:Connect(function(input)
-
-    if Dragging and
-    input.UserInputType ==
-    Enum.UserInputType.MouseMovement then
-
-
-        local Delta =
-        input.Position - DragStart
-
-
-        Main.Position =
-        UDim2.new(
-
-            StartPos.X.Scale,
-
-            StartPos.X.Offset + Delta.X,
-
-            StartPos.Y.Scale,
-
-            StartPos.Y.Offset + Delta.Y
-
-        )
-
-    end
-
-end)
 
 
 
 --==================================================
--- TITLE
+-- TOP BAR
 --==================================================
+
+
+local Top = Instance.new("Frame")
+
+
+Top.Size =
+UDim2.new(1,0,0,55)
+
+
+Top.BackgroundTransparency = 1
+
+
+Top.Parent =
+Main
+
+
+
 
 local Title = Instance.new("TextLabel")
 
+
 Title.Size =
-UDim2.new(1,0,0,45)
+UDim2.new(.5,0,1,0)
+
+
+Title.Position =
+UDim2.new(0,20,0,0)
+
 
 Title.BackgroundTransparency = 1
+
 
 Title.Text =
 "YAMIN HUB V2"
 
+
 Title.TextColor3 =
 Yamin.Theme.Text
+
 
 Title.Font =
 Enum.Font.GothamBold
 
-Title.TextSize = 24
 
-Title.Parent = Main
+Title.TextSize = 26
+
+
+Title.TextXAlignment =
+Enum.TextXAlignment.Left
+
+
+Title.Parent =
+Top
+
+
+
+
+local Version = Instance.new("TextLabel")
+
+
+Version.Size =
+UDim2.new(.3,0,1,0)
+
+
+Version.Position =
+UDim2.new(.7,0,0,0)
+
+
+Version.BackgroundTransparency = 1
+
+
+Version.Text =
+"Premium Edition"
+
+
+Version.TextColor3 =
+Yamin.Theme.Muted
+
+
+Version.Font =
+Enum.Font.Gotham
+
+
+Version.TextSize = 15
+
+
+Version.Parent =
+Top
+
+
 
 
 
@@ -203,18 +209,28 @@ Title.Parent = Main
 -- SIDEBAR
 --==================================================
 
+
 local Sidebar = Instance.new("Frame")
 
+
+Sidebar.Name =
+"Sidebar"
+
+
 Sidebar.Size =
-UDim2.new(0,180,1,-60)
+UDim2.fromOffset(190,520)
+
 
 Sidebar.Position =
-UDim2.new(0,10,0,50)
+UDim2.fromOffset(15,65)
+
 
 Sidebar.BackgroundColor3 =
 Yamin.Theme.Sidebar
 
-Sidebar.Parent = Main
+
+Sidebar.Parent =
+Main
 
 
 
@@ -222,45 +238,129 @@ local SideCorner =
 Instance.new("UICorner")
 
 SideCorner.CornerRadius =
-UDim.new(0,12)
+UDim.new(0,14)
 
-SideCorner.Parent = Sidebar
+SideCorner.Parent =
+Sidebar
 
 
 
 local SideLayout =
 Instance.new("UIListLayout")
 
+
 SideLayout.Padding =
-UDim.new(0,10)
+UDim.new(0,12)
 
-SideLayout.Parent = Sidebar
+
+SideLayout.HorizontalAlignment =
+Enum.HorizontalAlignment.Center
+
+
+SideLayout.VerticalAlignment =
+Enum.VerticalAlignment.Top
+
+
+SideLayout.Parent =
+Sidebar
 
 
 
 --==================================================
--- CONTENT
+-- CONTENT AREA
 --==================================================
+
 
 local Content = Instance.new("Frame")
 
+
+Content.Name =
+"Content"
+
+
 Content.Size =
-UDim2.new(1,-210,1,-70)
+UDim2.fromOffset(700,520)
+
 
 Content.Position =
-UDim2.new(0,200,0,55)
+UDim2.fromOffset(220,65)
+
 
 Content.BackgroundTransparency = 1
 
-Content.Parent = Main
+
+Content.Parent =
+Main
+
+
 
 
 
 --==================================================
--- TAB CREATOR
+-- PAGE SYSTEM
 --==================================================
 
-function Yamin.CreateTab(Name)
+
+function Yamin.CreatePage(Name)
+
+
+    local Page = Instance.new("ScrollingFrame")
+
+
+    Page.Name =
+    Name
+
+
+    Page.Size =
+    UDim2.fromScale(1,1)
+
+
+    Page.BackgroundTransparency = 1
+
+
+    Page.ScrollBarThickness = 5
+
+
+    Page.Visible = false
+
+
+    Page.Parent =
+    Content
+
+
+
+    local Layout =
+    Instance.new("UIListLayout")
+
+
+    Layout.Padding =
+    UDim.new(0,15)
+
+
+    Layout.Parent =
+    Page
+
+
+
+    Yamin.Pages[Name] =
+    Page
+
+
+
+    return Page
+
+end
+
+
+
+
+
+--==================================================
+-- TAB SYSTEM
+--==================================================
+
+
+function Yamin.CreateTab(Name,Page)
 
 
     local Button =
@@ -268,7 +368,7 @@ function Yamin.CreateTab(Name)
 
 
     Button.Size =
-    UDim2.new(1,-20,0,40)
+    UDim2.fromOffset(160,45)
 
 
     Button.BackgroundColor3 =
@@ -284,88 +384,56 @@ function Yamin.CreateTab(Name)
 
 
     Button.Font =
-    Enum.Font.Gotham
+    Enum.Font.GothamSemibold
 
 
     Button.TextSize = 16
 
 
-    Button.Parent = Sidebar
+    Button.Parent =
+    Sidebar
 
 
 
     local Corner =
     Instance.new("UICorner")
 
-    Corner.CornerRadius =
-    UDim.new(0,8)
 
-    Corner.Parent = Button
-
-
-
-    local Page =
-    Instance.new("ScrollingFrame")
-
-
-    Page.Size =
-    UDim2.new(1,0,1,0)
-
-    Page.BackgroundTransparency = 1
-
-    Page.Visible = false
-
-    Page.ScrollBarThickness = 4
-
-    Page.Parent = Content
-
-
-
-    local Layout =
-    Instance.new("UIListLayout")
-
-
-    Layout.Padding =
-    UDim.new(0,12)
-
-
-    Layout.Parent = Page
+    Corner.Parent =
+    Button
 
 
 
     Button.MouseButton1Click:Connect(function()
 
 
-        for _,tab in pairs(Yamin.Tabs) do
+        for _,v in pairs(Yamin.Pages) do
 
-            tab.Visible = false
+            v.Visible = false
 
         end
 
 
         Page.Visible = true
 
-        Yamin.CurrentTab = Page
 
 
     end)
 
 
 
-    Yamin.Tabs[Name] = Page
-
-
-    return Page
-
 end
 
 
 
+
+
 --==================================================
--- CARD CREATOR
+-- CARD SYSTEM
 --==================================================
 
-function Yamin.CreateCard(Page,TitleText)
+
+function Yamin.CreateCard(Page,TitleText,Height)
 
 
     local Card =
@@ -373,14 +441,20 @@ function Yamin.CreateCard(Page,TitleText)
 
 
     Card.Size =
-    UDim2.new(1,0,0,100)
+    UDim2.new(
+    1,
+    -10,
+    0,
+    Height or 130
+    )
 
 
     Card.BackgroundColor3 =
     Yamin.Theme.Card
 
 
-    Card.Parent = Page
+    Card.Parent =
+    Page
 
 
 
@@ -389,10 +463,11 @@ function Yamin.CreateCard(Page,TitleText)
 
 
     Corner.CornerRadius =
-    UDim.new(0,12)
+    UDim.new(0,14)
 
 
-    Corner.Parent = Card
+    Corner.Parent =
+    Card
 
 
 
@@ -401,7 +476,11 @@ function Yamin.CreateCard(Page,TitleText)
 
 
     Label.Size =
-    UDim2.new(1,0,0,30)
+    UDim2.new(1,-20,0,35)
+
+
+    Label.Position =
+    UDim2.fromOffset(10,5)
 
 
     Label.BackgroundTransparency = 1
@@ -419,7 +498,16 @@ function Yamin.CreateCard(Page,TitleText)
     Enum.Font.GothamBold
 
 
-    Label.Parent = Card
+    Label.TextSize =
+    19
+
+
+    Label.TextXAlignment =
+    Enum.TextXAlignment.Left
+
+
+    Label.Parent =
+    Card
 
 
 
@@ -429,418 +517,12 @@ end
 
 
 
---==================================================
--- START TABS
---==================================================
-
-Yamin.CreateTab("Movement")
-
-Yamin.CreateTab("Players")
-
-Yamin.CreateTab("Aura")
-
-Yamin.CreateTab("Settings")
-
-
-
-Yamin.Tabs["Movement"].Visible = true
-
-
-
-print("YAMIN HUB V2 CORE LOADED")
---==================================================
--- YAMIN HUB V2
--- PART 2
--- UI ELEMENT SYSTEM
---==================================================
 
 
 --==================================================
--- BUTTON
+-- NOTIFICATION SYSTEM
 --==================================================
 
-function Yamin.CreateButton(Parent, Text, Callback)
-
-
-    local Button =
-    Instance.new("TextButton")
-
-
-    Button.Size =
-    UDim2.new(1,-20,0,35)
-
-
-    Button.Position =
-    UDim2.new(0,10,0,0)
-
-
-    Button.BackgroundColor3 =
-    Yamin.Theme.Accent
-
-
-    Button.Text =
-    Text
-
-
-    Button.TextColor3 =
-    Color3.fromRGB(255,255,255)
-
-
-    Button.Font =
-    Enum.Font.GothamBold
-
-
-    Button.TextSize =
-    15
-
-
-    Button.Parent =
-    Parent
-
-
-
-    local Corner =
-    Instance.new("UICorner")
-
-
-    Corner.CornerRadius =
-    UDim.new(0,8)
-
-
-    Corner.Parent =
-    Button
-
-
-
-    Button.MouseEnter:Connect(function()
-
-        TweenService:Create(
-            Button,
-            TweenInfo.new(.2),
-            {
-                BackgroundColor3 =
-                Color3.fromRGB(0,180,255)
-            }
-        ):Play()
-
-    end)
-
-
-
-    Button.MouseLeave:Connect(function()
-
-        TweenService:Create(
-            Button,
-            TweenInfo.new(.2),
-            {
-                BackgroundColor3 =
-                Yamin.Theme.Accent
-            }
-        ):Play()
-
-    end)
-
-
-
-    Button.MouseButton1Click:Connect(function()
-
-        if Callback then
-
-            Callback()
-
-        end
-
-    end)
-
-
-
-    return Button
-
-end
-
-
-
-
-
---==================================================
--- TOGGLE
---==================================================
-
-function Yamin.CreateToggle(Parent, Text, Default, Callback)
-
-
-    local State =
-    Default or false
-
-
-
-    local Button =
-    Instance.new("TextButton")
-
-
-    Button.Size =
-    UDim2.new(1,-20,0,35)
-
-
-    Button.Position =
-    UDim2.new(0,10,0,0)
-
-
-    Button.BackgroundColor3 =
-    Yamin.Theme.Card
-
-
-    Button.Text =
-    Text.." : OFF"
-
-
-    Button.TextColor3 =
-    Yamin.Theme.Text
-
-
-    Button.Font =
-    Enum.Font.Gotham
-
-
-    Button.TextSize =
-    15
-
-
-    Button.Parent =
-    Parent
-
-
-
-    local Corner =
-    Instance.new("UICorner")
-
-
-    Corner.Parent =
-    Button
-
-
-
-    Button.MouseButton1Click:Connect(function()
-
-
-        State =
-        not State
-
-
-
-        if State then
-
-            Button.Text =
-            Text.." : ON"
-
-
-            Button.BackgroundColor3 =
-            Yamin.Theme.Accent
-
-        else
-
-            Button.Text =
-            Text.." : OFF"
-
-
-            Button.BackgroundColor3 =
-            Yamin.Theme.Card
-
-        end
-
-
-
-        if Callback then
-
-            Callback(State)
-
-        end
-
-
-    end)
-
-
-
-    return Button
-
-end
-
-
-
-
-
---==================================================
--- SLIDER
---==================================================
-
-function Yamin.CreateSlider(
-Parent,
-Text,
-Min,
-Max,
-Default,
-Callback
-)
-
-
-    local Value =
-    Default
-
-
-
-    local Holder =
-    Instance.new("Frame")
-
-
-    Holder.Size =
-    UDim2.new(1,-20,0,55)
-
-
-    Holder.BackgroundColor3 =
-    Yamin.Theme.Card
-
-
-    Holder.Parent =
-    Parent
-
-
-
-    local Corner =
-    Instance.new("UICorner")
-
-
-    Corner.Parent =
-    Holder
-
-
-
-    local Label =
-    Instance.new("TextLabel")
-
-
-    Label.Size =
-    UDim2.new(1,0,0,25)
-
-
-    Label.BackgroundTransparency = 1
-
-
-    Label.Text =
-    Text.." : "..Value
-
-
-    Label.TextColor3 =
-    Yamin.Theme.Text
-
-
-    Label.Parent =
-    Holder
-
-
-
-    local Bar =
-    Instance.new("TextButton")
-
-
-    Bar.Size =
-    UDim2.new(.8,0,0,8)
-
-
-    Bar.Position =
-    UDim2.new(.1,0,.65,0)
-
-
-    Bar.Text = ""
-
-
-    Bar.BackgroundColor3 =
-    Yamin.Theme.Accent
-
-
-    Bar.Parent =
-    Holder
-
-
-
-    local Drag = false
-
-
-
-    Bar.MouseButton1Down:Connect(function()
-
-        Drag = true
-
-    end)
-
-
-
-    UserInputService.InputEnded:Connect(function(input)
-
-        if input.UserInputType ==
-        Enum.UserInputType.MouseButton1 then
-
-            Drag = false
-
-        end
-
-    end)
-
-
-
-    UserInputService.InputChanged:Connect(function(input)
-
-        if Drag and
-        input.UserInputType ==
-        Enum.UserInputType.MouseMovement then
-
-
-            local X =
-            math.clamp(
-                input.Position.X-Bar.AbsolutePosition.X,
-                0,
-                Bar.AbsoluteSize.X
-            )
-
-
-            local Percent =
-            X/Bar.AbsoluteSize.X
-
-
-            Value =
-            math.floor(
-                Min+
-                (Max-Min)*Percent
-            )
-
-
-            Label.Text =
-            Text.." : "..Value
-
-
-
-            if Callback then
-
-                Callback(Value)
-
-            end
-
-        end
-
-    end)
-
-
-
-    return Holder
-
-end
-
-
-
-
-
---==================================================
--- NOTIFICATIONS
---==================================================
 
 function Yamin.Notify(Text)
 
@@ -850,11 +532,11 @@ function Yamin.Notify(Text)
 
 
     Notification.Size =
-    UDim2.fromOffset(300,50)
+    UDim2.fromOffset(300,55)
 
 
     Notification.Position =
-    UDim2.new(1,-320,1,-80)
+    UDim2.new(1,-330,1,-80)
 
 
     Notification.BackgroundColor3 =
@@ -873,8 +555,11 @@ function Yamin.Notify(Text)
     Enum.Font.GothamBold
 
 
+    Notification.TextSize = 15
+
+
     Notification.Parent =
-    Gui
+    ScreenGui
 
 
 
@@ -884,6 +569,17 @@ function Yamin.Notify(Text)
 
     Corner.Parent =
     Notification
+
+
+
+    TweenService:Create(
+        Notification,
+        TweenInfo.new(.3),
+        {
+            Position =
+            UDim2.new(1,-330,1,-100)
+        }
+    ):Play()
 
 
 
@@ -897,203 +593,919 @@ end
 
 
 
+
 --==================================================
--- CREATE BASIC PAGE EXAMPLES
+-- CREATE PAGES
 --==================================================
 
 
-local MovePage =
-Yamin.Tabs["Movement"]
+local Movement =
+Yamin.CreatePage("Movement")
+
+
+local Players =
+Yamin.CreatePage("Players")
+
+
+local Aura =
+Yamin.CreatePage("Aura")
+
+
+local Settings =
+Yamin.CreatePage("Settings")
 
 
 
-local Card =
-Yamin.CreateCard(
-MovePage,
-"Movement Controls"
+Yamin.CreateTab(
+"⚡ Movement",
+Movement
+)
+
+
+Yamin.CreateTab(
+"👤 Players",
+Players
+)
+
+
+Yamin.CreateTab(
+"✨ Aura",
+Aura
+)
+
+
+Yamin.CreateTab(
+"⚙ Settings",
+Settings
 )
 
 
 
-Yamin.CreateButton(
-Card,
-"Test Button",
-function()
-
-    Yamin.Notify(
-    "Button works!"
-    )
-
-end)
-
-
-
-Yamin.CreateSlider(
-Card,
-"WalkSpeed",
-16,
-200,
-16,
-function(v)
-
-    print(
-    "Speed:",
-    v
-    )
-
-end)
-
-
-
-Yamin.CreateToggle(
-Card,
-"Example Toggle",
-false,
-function(v)
-
-    print(
-    "Toggle:",
-    v
-    )
-
-end)
+Movement.Visible = true
 
 
 
 Yamin.Notify(
-"YAMIN HUB V2 UI SYSTEM READY"
+"YAMIN HUB V2 Loaded"
+)
+
+
+print(
+"YAMIN HUB V2 CORE READY"
+)
+--==================================================
+-- YAMIN HUB V2
+-- PART 2
+-- UI COMPONENT SYSTEM
+--==================================================
+
+
+
+--==================================================
+-- BUTTON
+--==================================================
+
+function Yamin.Button(
+    Parent,
+    Text,
+    Callback
+)
+
+
+    local Button =
+    Instance.new("TextButton")
+
+
+    Button.Size =
+    UDim2.new(
+        1,
+        -30,
+        0,
+        42
+    )
+
+
+    Button.Position =
+    UDim2.fromOffset(
+        15,
+        0
+    )
+
+
+    Button.BackgroundColor3 =
+    Yamin.Theme.Accent
+
+
+    Button.Text =
+    Text
+
+
+    Button.TextColor3 =
+    Color3.fromRGB(
+        255,
+        255,
+        255
+    )
+
+
+    Button.Font =
+    Enum.Font.GothamSemibold
+
+
+    Button.TextSize =
+    15
+
+
+    Button.AutoButtonColor = false
+
+
+    Button.Parent =
+    Parent
+
+
+
+    local Corner =
+    Instance.new("UICorner")
+
+
+    Corner.CornerRadius =
+    UDim.new(
+        0,
+        10
+    )
+
+
+    Corner.Parent =
+    Button
+
+
+
+    Button.MouseEnter:Connect(function()
+
+
+        TweenService:Create(
+            Button,
+            TweenInfo.new(
+                .2
+            ),
+            {
+                BackgroundColor3 =
+                Yamin.Theme.Accent2
+            }
+
+        ):Play()
+
+
+    end)
+
+
+
+    Button.MouseLeave:Connect(function()
+
+
+        TweenService:Create(
+            Button,
+            TweenInfo.new(
+                .2
+            ),
+            {
+                BackgroundColor3 =
+                Yamin.Theme.Accent
+            }
+
+        ):Play()
+
+
+    end)
+
+
+
+    Button.MouseButton1Click:Connect(function()
+
+
+        if Callback then
+
+            Callback()
+
+        end
+
+
+    end)
+
+
+
+    return Button
+
+end
+
+
+
+
+
+--==================================================
+-- TOGGLE
+--==================================================
+
+function Yamin.Toggle(
+    Parent,
+    Text,
+    Default,
+    Callback
+)
+
+
+    local State =
+    Default or false
+
+
+
+    local Holder =
+    Instance.new("Frame")
+
+
+    Holder.Size =
+    UDim2.new(
+        1,
+        -30,
+        0,
+        42
+    )
+
+
+    Holder.Position =
+    UDim2.fromOffset(
+        15,
+        0
+    )
+
+
+    Holder.BackgroundColor3 =
+    Yamin.Theme.Background
+
+
+    Holder.Parent =
+    Parent
+
+
+
+
+    local Corner =
+    Instance.new("UICorner")
+
+    Corner.Parent =
+    Holder
+
+
+
+
+    local Label =
+    Instance.new("TextLabel")
+
+
+    Label.Size =
+    UDim2.new(
+        .6,
+        0,
+        1,
+        0
+    )
+
+
+    Label.BackgroundTransparency =
+    1
+
+
+    Label.Text =
+    Text
+
+
+    Label.TextColor3 =
+    Yamin.Theme.Text
+
+
+    Label.Font =
+    Enum.Font.Gotham
+
+
+    Label.TextSize =
+    15
+
+
+    Label.TextXAlignment =
+    Enum.TextXAlignment.Left
+
+
+    Label.Position =
+    UDim2.fromOffset(
+        12,
+        0
+    )
+
+
+    Label.Parent =
+    Holder
+
+
+
+
+    local Toggle =
+    Instance.new("TextButton")
+
+
+    Toggle.Size =
+    UDim2.fromOffset(
+        70,
+        28
+    )
+
+
+    Toggle.Position =
+    UDim2.new(
+        1,
+        -85,
+        .5,
+        -14
+    )
+
+
+    Toggle.Text =
+    State and "ON" or "OFF"
+
+
+    Toggle.BackgroundColor3 =
+    State and
+    Yamin.Theme.Accent
+    or
+    Yamin.Theme.Card
+
+
+    Toggle.TextColor3 =
+    Yamin.Theme.Text
+
+
+    Toggle.Parent =
+    Holder
+
+
+
+    local ToggleCorner =
+    Instance.new("UICorner")
+
+
+    ToggleCorner.Parent =
+    Toggle
+
+
+
+
+    Toggle.MouseButton1Click:Connect(function()
+
+
+        State =
+        not State
+
+
+
+        Toggle.Text =
+        State and "ON" or "OFF"
+
+
+
+        Toggle.BackgroundColor3 =
+        State and
+        Yamin.Theme.Accent
+        or
+        Yamin.Theme.Card
+
+
+
+        if Callback then
+
+            Callback(State)
+
+        end
+
+
+    end)
+
+
+
+    return Holder
+
+end
+
+
+
+
+
+--==================================================
+-- SLIDER
+--==================================================
+
+function Yamin.Slider(
+    Parent,
+    Text,
+    Minimum,
+    Maximum,
+    Default,
+    Callback
+)
+
+
+    local Value =
+    Default
+
+
+
+    local Holder =
+    Instance.new("Frame")
+
+
+    Holder.Size =
+    UDim2.new(
+        1,
+        -30,
+        0,
+        65
+    )
+
+
+    Holder.Position =
+    UDim2.fromOffset(
+        15,
+        0
+    )
+
+
+    Holder.BackgroundColor3 =
+    Yamin.Theme.Background
+
+
+    Holder.Parent =
+    Parent
+
+
+
+    local Corner =
+    Instance.new("UICorner")
+
+
+    Corner.Parent =
+    Holder
+
+
+
+
+    local Label =
+    Instance.new("TextLabel")
+
+
+    Label.Size =
+    UDim2.new(
+        1,
+        -20,
+        0,
+        25
+    )
+
+
+    Label.Position =
+    UDim2.fromOffset(
+        10,
+        5
+    )
+
+
+    Label.BackgroundTransparency =
+    1
+
+
+    Label.Text =
+    Text..": "..Value
+
+
+    Label.TextColor3 =
+    Yamin.Theme.Text
+
+
+    Label.Font =
+    Enum.Font.Gotham
+
+
+    Label.TextSize =
+    15
+
+
+    Label.TextXAlignment =
+    Enum.TextXAlignment.Left
+
+
+    Label.Parent =
+    Holder
+
+
+
+
+    local Bar =
+    Instance.new("Frame")
+
+
+    Bar.Size =
+    UDim2.new(
+        .9,
+        0,
+        0,
+        8
+    )
+
+
+    Bar.Position =
+    UDim2.new(
+        .05,
+        0,
+        .7,
+        0
+    )
+
+
+    Bar.BackgroundColor3 =
+    Yamin.Theme.Card
+
+
+    Bar.Parent =
+    Holder
+
+
+
+
+    local Fill =
+    Instance.new("Frame")
+
+
+    Fill.Size =
+    UDim2.new(
+        (Value-Minimum)/
+        (Maximum-Minimum),
+        0,
+        1,
+        0
+    )
+
+
+    Fill.BackgroundColor3 =
+    Yamin.Theme.Accent
+
+
+    Fill.Parent =
+    Bar
+
+
+
+
+    local Dragging = false
+
+
+
+    Bar.InputBegan:Connect(function(Input)
+
+
+        if Input.UserInputType ==
+        Enum.UserInputType.MouseButton1 then
+
+            Dragging = true
+
+        end
+
+
+    end)
+
+
+
+    UserInputService.InputEnded:Connect(function(Input)
+
+
+        if Input.UserInputType ==
+        Enum.UserInputType.MouseButton1 then
+
+            Dragging = false
+
+        end
+
+
+    end)
+
+
+
+    UserInputService.InputChanged:Connect(function(Input)
+
+
+        if Dragging and
+        Input.UserInputType ==
+        Enum.UserInputType.MouseMovement then
+
+
+            local Percent =
+            math.clamp(
+                (
+                Input.Position.X -
+                Bar.AbsolutePosition.X
+                )
+                /
+                Bar.AbsoluteSize.X,
+                0,
+                1
+            )
+
+
+
+            Value =
+            math.floor(
+                Minimum +
+                (
+                Maximum-Minimum
+                )
+                *
+                Percent
+            )
+
+
+
+            Fill.Size =
+            UDim2.new(
+                Percent,
+                0,
+                1,
+                0
+            )
+
+
+
+            Label.Text =
+            Text..": "..Value
+
+
+
+            if Callback then
+
+                Callback(Value)
+
+            end
+
+
+        end
+
+
+    end)
+
+
+
+    return Holder
+
+end
+
+
+
+
+
+--==================================================
+-- CARD CONTENT HELPER
+--==================================================
+
+function Yamin.AddSpacing(Page, Amount)
+
+
+    local Space =
+    Instance.new("Frame")
+
+
+    Space.Size =
+    UDim2.new(
+        1,
+        0,
+        0,
+        Amount or 10
+    )
+
+
+    Space.BackgroundTransparency =
+    1
+
+
+    Space.Parent =
+    Page
+
+
+
+end
+
+
+
+print(
+"YAMIN HUB V2 UI COMPONENTS READY"
 )
 --==================================================
 -- YAMIN HUB V2
 -- PART 3
--- MOVEMENT + PLAYER SYSTEM FOUNDATION
+-- MOVEMENT SYSTEM
+--==================================================
+
+
+local RunService =
+game:GetService("RunService")
+
+
+
+--==================================================
+-- CHARACTER SYSTEM
 --==================================================
 
 
 local Character
 local Humanoid
+local Root
 
 
 
-local function UpdateCharacter()
+local function LoadCharacter(char)
 
-    Character =
-    Player.Character or Player.CharacterAdded:Wait()
+
+    Character = char
 
 
     Humanoid =
-    Character:WaitForChild("Humanoid")
+    Character:WaitForChild(
+        "Humanoid"
+    )
+
+
+    Root =
+    Character:WaitForChild(
+        "HumanoidRootPart"
+    )
+
 
 end
 
 
 
-UpdateCharacter()
+if LocalPlayer.Character then
+
+    LoadCharacter(
+        LocalPlayer.Character
+    )
+
+end
 
 
 
-Player.CharacterAdded:Connect(function()
+LocalPlayer.CharacterAdded:Connect(
+function(char)
 
     task.wait(1)
 
-    UpdateCharacter()
+    LoadCharacter(char)
 
 end)
 
 
 
 
+
 --==================================================
--- MOVEMENT SYSTEM
+-- MOVEMENT PAGE
 --==================================================
 
 
 local MovementPage =
-Yamin.Tabs["Movement"]
+Yamin.Pages["Movement"]
 
 
 
 local MovementCard =
 Yamin.CreateCard(
-MovementPage,
-"Movement Controls"
+    MovementPage,
+    "Movement Controls",
+    330
 )
 
 
 
--- SPEED
+--==================================================
+-- WALKSPEED
+--==================================================
 
-Yamin.CreateSlider(
-MovementCard,
-"WalkSpeed",
-16,
-200,
-16,
 
-function(Value)
+Yamin.Slider(
 
-    if Humanoid then
+    MovementCard,
 
-        Humanoid.WalkSpeed =
-        Value
+    "Walk Speed",
+
+    16,
+
+    200,
+
+    16,
+
+
+    function(Value)
+
+
+        if Humanoid then
+
+
+            Humanoid.WalkSpeed =
+            Value
+
+
+        end
+
 
     end
 
-end
 )
 
 
 
--- JUMP
 
-Yamin.CreateSlider(
-MovementCard,
-"JumpPower",
-50,
-250,
-50,
 
-function(Value)
+--==================================================
+-- JUMP POWER
+--==================================================
 
-    if Humanoid then
 
-        Humanoid.JumpPower =
-        Value
+Yamin.Slider(
+
+    MovementCard,
+
+    "Jump Power",
+
+    50,
+
+    250,
+
+    50,
+
+
+    function(Value)
+
+
+        if Humanoid then
+
+
+            Humanoid.JumpPower =
+            Value
+
+
+        end
+
 
     end
 
-end
 )
 
 
 
 
--- RESET
 
-Yamin.CreateButton(
-MovementCard,
-"Reset Movement",
-
-function()
-
-    if Humanoid then
-
-        Humanoid.WalkSpeed =
-        16
+--==================================================
+-- RESET MOVEMENT
+--==================================================
 
 
-        Humanoid.JumpPower =
-        50
+Yamin.Button(
+
+    MovementCard,
+
+    "Reset Movement",
+
+    function()
+
+
+        if Humanoid then
+
+
+            Humanoid.WalkSpeed =
+            16
+
+
+            Humanoid.JumpPower =
+            50
+
+
+
+            Yamin.Notify(
+            "Movement reset"
+            )
+
+
+        end
+
 
     end
 
-
-    Yamin.Notify(
-    "Movement reset"
-    )
-
-end
 )
+
 
 
 
@@ -1103,34 +1515,52 @@ end
 --==================================================
 
 
-local InfiniteJump = false
+local InfiniteJump =
+false
 
 
 
-Yamin.CreateToggle(
-MovementCard,
-"Infinite Jump",
-false,
+Yamin.Toggle(
 
-function(State)
+    MovementCard,
 
-    InfiniteJump =
-    State
+    "Infinite Jump",
+
+    false,
 
 
-end
+    function(State)
+
+
+        InfiniteJump =
+        State
+
+
+
+        Yamin.Notify(
+        "Infinite Jump: "
+        ..
+        tostring(State)
+        )
+
+
+    end
+
 )
 
 
 
-UserInputService.JumpRequest:Connect(function()
+
+UserInputService.JumpRequest:Connect(
+function()
 
 
     if InfiniteJump
     and Humanoid then
 
 
-        Humanoid:ChangeState(
+        Humanoid:
+        ChangeState(
         Enum.HumanoidStateType.Jumping
         )
 
@@ -1144,133 +1574,117 @@ end)
 
 
 
-
 --==================================================
--- AIR WALK FOUNDATION
+-- AIR WALK
 --==================================================
 
 
-local AirWalk = false
+local AirWalk =
+false
 
 
 
-Yamin.CreateToggle(
-MovementCard,
-"Air Walk",
-false,
-
-function(State)
-
-    AirWalk =
-    State
+local AirPart
 
 
-    if not State
-    and Character then
+
+Yamin.Toggle(
+
+    MovementCard,
+
+    "Air Walk",
+
+    false,
 
 
-        local Root =
-        Character:FindFirstChild(
-        "HumanoidRootPart"
-        )
+    function(State)
 
 
-        if Root then
-
-            local Old =
-            Root:FindFirstChild(
-            "YaminAirPlatform"
-            )
+        AirWalk =
+        State
 
 
-            if Old then
 
-                Old:Destroy()
+        if not State
+        and AirPart then
 
-            end
+
+            AirPart:Destroy()
+
+            AirPart = nil
+
 
         end
 
 
     end
 
-end
 )
 
 
 
-game:GetService("RunService").Heartbeat:Connect(function()
+
+
+RunService.Heartbeat:Connect(
+function()
 
 
     if AirWalk
-    and Character then
+    and Root then
 
 
-        local Root =
-        Character:FindFirstChild(
-        "HumanoidRootPart"
-        )
+
+        if not AirPart then
 
 
-        if Root then
+            AirPart =
+            Instance.new("Part")
 
 
-            local Platform =
-            Root:FindFirstChild(
+
+            AirPart.Name =
             "YaminAirPlatform"
+
+
+
+            AirPart.Size =
+            Vector3.new(
+                6,
+                .2,
+                6
             )
 
 
-            if not Platform then
+            AirPart.Transparency =
+            1
 
 
-                Platform =
-                Instance.new("Part")
+            AirPart.Anchored =
+            true
 
 
-                Platform.Name =
-                "YaminAirPlatform"
-
-
-                Platform.Size =
-                Vector3.new(
-                5,
-                0.2,
-                5
-                )
-
-
-                Platform.Transparency =
-                1
-
-
-                Platform.Anchored =
-                true
-
-
-                Platform.CanCollide =
-                true
-
-
-                Platform.Parent =
-                Root
+            AirPart.CanCollide =
+            true
 
 
 
-            end
-
-
-
-            Platform.CFrame =
-            Root.CFrame *
-            CFrame.new(
-            0,
-            -3.1,
-            0
-            )
+            AirPart.Parent =
+            workspace
 
 
         end
+
+
+
+
+        AirPart.CFrame =
+        Root.CFrame *
+        CFrame.new(
+            0,
+            -3.2,
+            0
+        )
+
 
 
     end
@@ -1283,25 +1697,94 @@ end)
 
 
 --==================================================
--- PLAYERS TAB
+-- MOVEMENT STATE DISPLAY
+--==================================================
+
+
+Yamin.Button(
+
+    MovementCard,
+
+    "Show Current Speed",
+
+    function()
+
+
+        if Humanoid then
+
+
+            Yamin.Notify(
+
+            "Speed: "
+            ..
+            Humanoid.WalkSpeed
+
+            )
+
+
+        end
+
+
+    end
+
+)
+
+
+
+
+print(
+"YAMIN HUB V2 MOVEMENT SYSTEM READY"
+)
+--==================================================
+-- YAMIN HUB V2
+-- PART 4
+-- PLAYERS SYSTEM
+--==================================================
+
+
+local PlayerService =
+game:GetService("Players")
+
+
+
+--==================================================
+-- PLAYER DATA
+--==================================================
+
+
+Yamin.SelectedPlayer = nil
+
+Yamin.PlayerButtons = {}
+
+
+
+
+
+--==================================================
+-- PLAYERS PAGE
 --==================================================
 
 
 local PlayersPage =
-Yamin.Tabs["Players"]
+Yamin.Pages["Players"]
+
 
 
 
 local PlayerCard =
 Yamin.CreateCard(
-PlayersPage,
-"Player Selector"
+    PlayersPage,
+    "Player Selector",
+    430
 )
 
 
 
-local SelectedPlayer = nil
 
+
+--==================================================
+-- SEARCH BOX
+--==================================================
 
 
 local SearchBox =
@@ -1310,32 +1793,42 @@ Instance.new("TextBox")
 
 SearchBox.Size =
 UDim2.new(
-1,
--20,
-0,
-35
+    1,
+    -30,
+    0,
+    40
 )
 
 
 SearchBox.Position =
-UDim2.new(
-0,
-10,
-0,
-10
+UDim2.fromOffset(
+    15,
+    45
 )
 
 
 SearchBox.PlaceholderText =
-"Search Player..."
+"Search player..."
+
+
+SearchBox.Text =
+""
+
+
+SearchBox.BackgroundColor3 =
+Yamin.Theme.Background
 
 
 SearchBox.TextColor3 =
 Yamin.Theme.Text
 
 
-SearchBox.BackgroundColor3 =
-Yamin.Theme.Background
+SearchBox.Font =
+Enum.Font.Gotham
+
+
+SearchBox.TextSize =
+15
 
 
 SearchBox.Parent =
@@ -1343,241 +1836,585 @@ PlayerCard
 
 
 
-local PlayerList =
-Instance.new("ScrollingFrame")
+
+local SearchCorner =
+Instance.new("UICorner")
 
 
-PlayerList.Size =
+SearchCorner.Parent =
+SearchBox
+
+
+
+
+
+--==================================================
+-- SELECTED PLAYER DISPLAY
+--==================================================
+
+
+local SelectedLabel =
+Instance.new("TextLabel")
+
+
+
+SelectedLabel.Size =
 UDim2.new(
-1,
--20,
-0,
-120
+    1,
+    -30,
+    0,
+    30
 )
 
 
-PlayerList.Position =
-UDim2.new(
-0,
-10,
-0,
-50
+
+SelectedLabel.Position =
+UDim2.fromOffset(
+    15,
+    90
 )
 
 
-PlayerList.BackgroundTransparency =
+
+SelectedLabel.BackgroundTransparency =
 1
 
 
-PlayerList.ScrollBarThickness =
-4
+
+SelectedLabel.Text =
+"Selected: None"
 
 
-PlayerList.Parent =
+
+SelectedLabel.TextColor3 =
+Yamin.Theme.Text
+
+
+
+SelectedLabel.Font =
+Enum.Font.GothamBold
+
+
+
+SelectedLabel.TextSize =
+15
+
+
+
+SelectedLabel.TextXAlignment =
+Enum.TextXAlignment.Left
+
+
+
+SelectedLabel.Parent =
 PlayerCard
 
 
 
-local ListLayout =
+
+
+--==================================================
+-- PLAYER LIST
+--==================================================
+
+
+local List =
+Instance.new("ScrollingFrame")
+
+
+
+List.Size =
+UDim2.new(
+    1,
+    -30,
+    0,
+    180
+)
+
+
+
+List.Position =
+UDim2.fromOffset(
+    15,
+    125
+)
+
+
+
+List.BackgroundColor3 =
+Yamin.Theme.Background
+
+
+
+List.ScrollBarThickness =
+5
+
+
+
+List.Parent =
+PlayerCard
+
+
+
+
+
+local ListCorner =
+Instance.new("UICorner")
+
+
+ListCorner.Parent =
+List
+
+
+
+
+local Layout =
 Instance.new("UIListLayout")
 
-ListLayout.Parent =
-PlayerList
+
+Layout.Padding =
+UDim.new(
+    0,
+    6
+)
+
+
+Layout.Parent =
+List
 
 
 
-local function RefreshPlayers()
 
 
-    for _,v in pairs(
-    PlayerList:GetChildren()
+--==================================================
+-- SELECT PLAYER
+--==================================================
+
+
+local function SelectPlayer(Player)
+
+
+    Yamin.SelectedPlayer =
+    Player
+
+
+
+    SelectedLabel.Text =
+    "Selected: "
+    ..
+    Player.Name
+
+
+
+    Yamin.Notify(
+    "Selected "..Player.Name
+    )
+
+
+end
+
+
+
+
+
+--==================================================
+-- CREATE PLAYER BUTTON
+--==================================================
+
+
+local function CreatePlayerButton(Player)
+
+
+
+    local Button =
+    Instance.new("TextButton")
+
+
+
+    Button.Size =
+    UDim2.new(
+        1,
+        -10,
+        0,
+        32
+    )
+
+
+
+    Button.BackgroundColor3 =
+    Yamin.Theme.Card
+
+
+
+    Button.Text =
+    Player.Name
+
+
+
+    Button.TextColor3 =
+    Yamin.Theme.Text
+
+
+
+    Button.Font =
+    Enum.Font.Gotham
+
+
+
+    Button.TextSize =
+    14
+
+
+
+    Button.Parent =
+    List
+
+
+
+
+
+    local Corner =
+    Instance.new("UICorner")
+
+
+    Corner.Parent =
+    Button
+
+
+
+
+
+    Button.MouseButton1Click:Connect(
+    function()
+
+
+        SelectPlayer(Player)
+
+
+    end)
+
+
+
+    table.insert(
+    Yamin.PlayerButtons,
+    Button
+    )
+
+
+end
+
+
+
+
+
+
+--==================================================
+-- REFRESH PLAYERS
+--==================================================
+
+
+function Yamin.RefreshPlayers()
+
+
+
+    for _,button in pairs(
+    Yamin.PlayerButtons
     ) do
 
-        if v:IsA("TextButton") then
 
-            v:Destroy()
+        button:Destroy()
 
-        end
 
     end
 
 
 
-    for _,plr in pairs(
-    Players:GetPlayers()
+    table.clear(
+    Yamin.PlayerButtons
+    )
+
+
+
+
+    for _,Player in pairs(
+    PlayerService:GetPlayers()
     ) do
 
 
-        local Button =
-        Instance.new("TextButton")
-
-
-        Button.Size =
-        UDim2.new(
-        1,
-        0,
-        0,
-        30
+        CreatePlayerButton(
+        Player
         )
 
 
-        Button.Text =
-        plr.Name
-
-
-        Button.BackgroundColor3 =
-        Yamin.Theme.Card
-
-
-        Button.TextColor3 =
-        Yamin.Theme.Text
-
-
-        Button.Parent =
-        PlayerList
+    end
 
 
 
-        Button.MouseButton1Click:Connect(function()
+end
 
 
-            SelectedPlayer =
-            plr
 
 
-            Yamin.Notify(
-            "Selected: "..plr.Name
+
+--==================================================
+-- REFRESH BUTTON
+--==================================================
+
+
+Yamin.Button(
+
+    PlayerCard,
+
+    "Refresh Players",
+
+    function()
+
+
+        Yamin.RefreshPlayers()
+
+
+        Yamin.Notify(
+        "Player list updated"
+        )
+
+
+    end
+
+)
+
+
+
+
+
+--==================================================
+-- SEARCH FILTER
+--==================================================
+
+
+SearchBox:GetPropertyChangedSignal(
+"Text"
+):Connect(
+function()
+
+
+
+    local Search =
+    string.lower(
+    SearchBox.Text
+    )
+
+
+
+    for _,Button in pairs(
+    Yamin.PlayerButtons
+    ) do
+
+
+
+        if Search == "" then
+
+
+            Button.Visible =
+            true
+
+
+
+        else
+
+
+
+            Button.Visible =
+            string.find(
+            string.lower(Button.Text),
+            Search
             )
+            ~= nil
 
 
-        end)
+
+        end
+
 
 
     end
 
 
-end
+
+end)
 
 
 
-Yamin.CreateButton(
-PlayerCard,
-"Refresh Players",
 
+
+--==================================================
+-- PLAYER JOIN / LEAVE
+--==================================================
+
+
+PlayerService.PlayerAdded:Connect(
 function()
 
-    RefreshPlayers()
 
-end
-)
+    Yamin.RefreshPlayers()
 
 
+end)
 
-RefreshPlayers()
+
+
+PlayerService.PlayerRemoving:Connect(
+function()
+
+
+    Yamin.RefreshPlayers()
+
+
+end)
+
+
+
+
+
+Yamin.RefreshPlayers()
+
 
 
 print(
-"YAMIN HUB V2 PART 3 LOADED"
+"YAMIN HUB V2 PLAYER SYSTEM READY"
 )
 --==================================================
 -- YAMIN HUB V2
--- PART 4
--- AURA + SETTINGS
+-- PART 5
+-- AURA + SETTINGS + FINAL
 --==================================================
+
 
 
 --==================================================
 -- AURA SYSTEM
 --==================================================
 
+
 local AuraPage =
-Yamin.Tabs["Aura"]
+Yamin.Pages["Aura"]
+
 
 
 local AuraCard =
 Yamin.CreateCard(
-AuraPage,
-"Aura Customization"
+    AuraPage,
+    "Aura Customization",
+    320
 )
 
 
 
-local AuraConfig = {
+Yamin.Aura = {}
 
-    AngelBundle =
+
+
+Yamin.Aura.Current =
+"None"
+
+
+
+Yamin.Aura.Bundles = {
+
+    Angel =
     "57393899235237",
 
-
     AdidasAura =
-    true,
-
+    "Adidas Aura Animation Pack",
 
     AdidasCommunity =
-    true
+    "Adidas Community Animation Pack"
 
 }
 
 
 
--- Store selected cosmetic
-local CurrentAura = nil
+
+--==================================================
+-- AURA BUTTONS
+--==================================================
+
+
+Yamin.Button(
+
+    AuraCard,
+
+    "Select Angel Bundle",
+
+    function()
+
+
+        Yamin.Aura.Current =
+        Yamin.Aura.Bundles.Angel
 
 
 
-Yamin.CreateButton(
-AuraCard,
-"Angel Bundle",
-
-function()
-
-    CurrentAura =
-    AuraConfig.AngelBundle
+        Yamin.Notify(
+        "Angel bundle selected"
+        )
 
 
-    Yamin.Notify(
-    "Angel bundle selected"
-    )
+    end
 
-end
 )
 
 
 
-Yamin.CreateButton(
-AuraCard,
-"Adidas Aura Animation Pack",
 
-function()
+Yamin.Button(
 
-    CurrentAura =
-    "Adidas Aura"
+    AuraCard,
+
+    "Adidas Aura Pack",
+
+    function()
 
 
-    Yamin.Notify(
-    "Adidas Aura selected"
-    )
+        Yamin.Aura.Current =
+        Yamin.Aura.Bundles.AdidasAura
 
-end
+
+
+        Yamin.Notify(
+        "Adidas Aura selected"
+        )
+
+
+    end
+
 )
 
 
 
-Yamin.CreateButton(
-AuraCard,
-"Adidas Community Animation Pack",
 
-function()
+Yamin.Button(
 
-    CurrentAura =
-    "Adidas Community"
+    AuraCard,
+
+    "Adidas Community Pack",
+
+    function()
 
 
-    Yamin.Notify(
-    "Adidas Community selected"
-    )
+        Yamin.Aura.Current =
+        Yamin.Aura.Bundles.AdidasCommunity
 
-end
+
+
+        Yamin.Notify(
+        "Adidas Community selected"
+        )
+
+
+    end
+
 )
+
+
 
 
 
@@ -1588,8 +2425,9 @@ end
 
 local EmoteCard =
 Yamin.CreateCard(
-AuraPage,
-"Aura Emotes"
+    AuraPage,
+    "Aura Emotes",
+    250
 )
 
 
@@ -1597,8 +2435,13 @@ AuraPage,
 local Emotes = {
 
     "Wave",
+
     "Cheer",
-    "Dance"
+
+    "Dance",
+
+    "Point"
+
 
 }
 
@@ -1607,18 +2450,22 @@ local Emotes = {
 for _,Emote in pairs(Emotes) do
 
 
-    Yamin.CreateButton(
-    EmoteCard,
-    Emote,
+    Yamin.Button(
 
-    function()
+        EmoteCard,
 
-        Yamin.Notify(
-        "Playing "..Emote
-        )
+        Emote,
+
+        function()
 
 
-    end
+            Yamin.Notify(
+            "Emote: "..Emote
+            )
+
+
+        end
+
     )
 
 
@@ -1628,157 +2475,23 @@ end
 
 
 
+
 --==================================================
--- SETTINGS TAB
+-- SETTINGS SYSTEM
 --==================================================
 
 
 local SettingsPage =
-Yamin.Tabs["Settings"]
+Yamin.Pages["Settings"]
 
 
 
 local SettingsCard =
 Yamin.CreateCard(
-SettingsPage,
-"Hub Settings"
+    SettingsPage,
+    "Hub Settings",
+    300
 )
-
-
-
-
--- UI TOGGLE
-
-local HubVisible = true
-
-
-
-Yamin.CreateToggle(
-SettingsCard,
-"UI Visible",
-true,
-
-function(State)
-
-
-    HubVisible =
-    State
-
-
-    Main.Visible =
-    State
-
-
-end
-)
-
-
-
-
--- RELOAD
-
-Yamin.CreateButton(
-SettingsCard,
-"Reload Hub",
-
-function()
-
-
-    Yamin.Notify(
-    "Reload requested"
-    )
-
-
-end
-)
-
-
-
-
--- DEBUG
-
-local Debug = false
-
-
-
-Yamin.CreateToggle(
-SettingsCard,
-"Debug Mode",
-false,
-
-function(State)
-
-    Debug =
-    State
-
-
-    print(
-    "Debug:",
-    Debug
-    )
-
-end
-)
-
-
-
-
---==================================================
--- STARTUP POLISH
---==================================================
-
-
-Main.Visible = true
-
-
-
-Yamin.Notify(
-"YAMIN HUB V2 PART 4 LOADED"
-)
-
-
-
-print(
-"YAMIN HUB V2 PART 4 COMPLETE"
-)
---==================================================
--- YAMIN HUB V2
--- PART 5
--- FINAL POLISH
---==================================================
-
-
---==================================================
--- WINDOW ANIMATION
---==================================================
-
-
-Main.Size =
-UDim2.fromOffset(
-0,
-0
-)
-
-
-
-TweenService:Create(
-Main,
-TweenInfo.new(
-0.5,
-Enum.EasingStyle.Back,
-Enum.EasingDirection.Out
-),
-
-{
-    Size =
-    UDim2.fromOffset(
-    900,
-    550
-    )
-}
-
-):Play()
-
 
 
 
@@ -1788,137 +2501,114 @@ Enum.EasingDirection.Out
 --==================================================
 
 
-local UIEnabled = true
+local Visible =
+true
 
 
 
 UserInputService.InputBegan:Connect(
-function(input,gpe)
+function(Input,Typing)
 
 
-    if gpe then
+    if Typing then
         return
     end
 
 
 
-    if input.KeyCode ==
+    if Input.KeyCode ==
     Enum.KeyCode.RightShift then
 
 
-        UIEnabled =
-        not UIEnabled
+
+        Visible =
+        not Visible
 
 
-        Main.Visible =
-        UIEnabled
+
+        ScreenGui.Enabled =
+        Visible
 
 
 
     end
 
 
-end
+end)
+
+
+
+
+
+Yamin.Button(
+
+    SettingsCard,
+
+    "Hide UI",
+
+    function()
+
+
+        Visible =
+        false
+
+
+        ScreenGui.Enabled =
+        false
+
+
+    end
+
 )
 
 
 
 
 
---==================================================
--- RESPAWN SUPPORT
---==================================================
+
+Yamin.Button(
+
+    SettingsCard,
+
+    "Reload Notification",
+
+    function()
 
 
-Player.CharacterAdded:Connect(
-function(char)
-
-
-    Character =
-    char
-
-
-    Humanoid =
-    char:WaitForChild(
-    "Humanoid"
-    )
-
-
-
-    if Debug then
-
-        print(
-        "Character updated"
+        Yamin.Notify(
+        "Yamin Hub is running"
         )
 
+
     end
 
-
-end
 )
 
 
 
 
 
---==================================================
--- CLEANUP SYSTEM
---==================================================
+Yamin.Button(
+
+    SettingsCard,
+
+    "Clear Selection",
+
+    function()
 
 
-function Yamin.Destroy()
+        Yamin.SelectedPlayer =
+        nil
 
 
-    if Gui then
 
-        Gui:Destroy()
+        Yamin.Notify(
+        "Player selection cleared"
+        )
+
 
     end
 
-
-
-    table.clear(
-    Yamin.Tabs
-    )
-
-
-
-    print(
-    "YAMIN HUB CLOSED"
-    )
-
-
-end
-
-
-
-
-
---==================================================
--- SETTINGS BUTTONS
---==================================================
-
-
-Yamin.CreateButton(
-SettingsCard,
-
-"Unload Hub",
-
-function()
-
-
-    Yamin.Notify(
-    "Closing Yamin Hub..."
-    )
-
-
-    task.wait(1)
-
-
-    Yamin.Destroy()
-
-
-end
 )
 
 
@@ -1926,34 +2616,28 @@ end
 
 
 
+
 --==================================================
--- FINAL CHECK
+-- FINAL POLISH
 --==================================================
 
 
-local Loaded = {
-
-    "UI",
-    "Movement",
-    "Players",
-    "Aura",
-    "Settings"
-
-}
+for _,Page in pairs(
+Yamin.Pages
+) do
 
 
-
-for _,System in pairs(Loaded) do
-
-
-    print(
-    "[YAMIN]",
-    System,
-    "Loaded"
+    Page.CanvasSize =
+    UDim2.new(
+        0,
+        0,
+        0,
+        Page.UIListLayout.AbsoluteContentSize.Y
     )
 
 
 end
+
 
 
 
@@ -1965,7 +2649,7 @@ Yamin.Notify(
 
 
 print(
-"================================="
+"================================"
 )
 
 print(
@@ -1973,5 +2657,5 @@ print(
 )
 
 print(
-"================================="
+"================================"
 )
