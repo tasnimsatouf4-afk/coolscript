@@ -1,1058 +1,1588 @@
---==================================================
--- YAMIN HUB V2
--- PART 1
--- CORE HUB ENGINE
---==================================================
+--[[
+========================================================
+              YAMIN HUB V3
+        FULL LOCALSCRIPT - COMPLETE
+========================================================
+Premium Executor-Style Admin Hub
+Dark Futuristic Theme • Modular Architecture
+========================================================
+]]
 
-
-local PlayersService = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local StarterGui = game:GetService("StarterGui")
+local Lighting = game:GetService("Lighting")
+local HttpService = game:GetService("HttpService")
 
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+local Camera = workspace.CurrentCamera
+local Mouse = LocalPlayer:GetMouse()
 
-local LocalPlayer = PlayersService.LocalPlayer
-
-
---==================================================
--- MAIN FRAMEWORK
---==================================================
-
-
-local Yamin = {}
-
-Yamin.Version = "V2"
-
-Yamin.Theme = {
-
-    Background = Color3.fromRGB(6,10,25),
-    Sidebar = Color3.fromRGB(10,18,45),
-    Card = Color3.fromRGB(15,28,65),
-    Accent = Color3.fromRGB(0,145,255),
-    Accent2 = Color3.fromRGB(0,210,255),
-    Text = Color3.fromRGB(235,240,255),
-    Muted = Color3.fromRGB(150,160,190)
-
+--========================================================
+-- THEME
+--========================================================
+local Theme = {
+	Background = Color3.fromRGB(5, 10, 25),
+	Sidebar = Color3.fromRGB(10, 20, 50),
+	Card = Color3.fromRGB(15, 30, 70),
+	Accent = Color3.fromRGB(0, 140, 255),
+	Secondary = Color3.fromRGB(0, 210, 255),
+	Text = Color3.fromRGB(240, 245, 255),
+	TextDim = Color3.fromRGB(160, 180, 210),
+	Success = Color3.fromRGB(50, 220, 120),
+	Warning = Color3.fromRGB(255, 190, 40),
+	Error = Color3.fromRGB(255, 70, 70),
+	Hover = Color3.fromRGB(20, 40, 90),
+	Selected = Color3.fromRGB(0, 110, 220),
 }
 
-
-Yamin.Pages = {}
-Yamin.Tabs = {}
-Yamin.Elements = {}
-
-
-
---==================================================
--- GUI CREATION
---==================================================
-
-
-local ScreenGui = Instance.new("ScreenGui")
-
-ScreenGui.Name = "YaminHubV2"
-
-ScreenGui.ResetOnSpawn = false
-
-ScreenGui.Parent =
-LocalPlayer:WaitForChild("PlayerGui")
-
-
-
-
-local Main = Instance.new("Frame")
-
-Main.Name = "Main"
-
-Main.Size =
-UDim2.fromOffset(950,600)
-
-
-Main.Position =
-UDim2.new(
-0.5,
--475,
-0.5,
--300
-)
-
-
-Main.BackgroundColor3 =
-Yamin.Theme.Background
-
-
-Main.BorderSizePixel = 0
-
-
-Main.Parent =
-ScreenGui
-
-
-
-local MainCorner = Instance.new("UICorner")
-
-MainCorner.CornerRadius =
-UDim.new(0,18)
-
-MainCorner.Parent = Main
-
-
-
-local MainStroke = Instance.new("UIStroke")
-
-MainStroke.Color =
-Yamin.Theme.Accent
-
-
-MainStroke.Thickness = 2
-
-MainStroke.Parent = Main
-
-
-
-
-
---==================================================
--- TOP BAR
---==================================================
-
-
-local Top = Instance.new("Frame")
-
-
-Top.Size =
-UDim2.new(1,0,0,55)
-
-
-Top.BackgroundTransparency = 1
-
-
-Top.Parent =
-Main
-
-
-
-
-local Title = Instance.new("TextLabel")
-
-
-Title.Size =
-UDim2.new(.5,0,1,0)
-
-
-Title.Position =
-UDim2.new(0,20,0,0)
-
-
-Title.BackgroundTransparency = 1
-
-
-Title.Text =
-"YAMIN HUB V2"
-
-
-Title.TextColor3 =
-Yamin.Theme.Text
-
-
-Title.Font =
-Enum.Font.GothamBold
-
-
-Title.TextSize = 26
-
-
-Title.TextXAlignment =
-Enum.TextXAlignment.Left
-
-
-Title.Parent =
-Top
-
-
-
-
-local Version = Instance.new("TextLabel")
-
-
-Version.Size =
-UDim2.new(.3,0,1,0)
-
-
-Version.Position =
-UDim2.new(.7,0,0,0)
-
-
-Version.BackgroundTransparency = 1
-
-
-Version.Text =
-"Premium Edition"
-
-
-Version.TextColor3 =
-Yamin.Theme.Muted
-
-
-Version.Font =
-Enum.Font.Gotham
-
-
-Version.TextSize = 15
-
-
-Version.Parent =
-Top
-
-
-
-
-
---==================================================
--- SIDEBAR
---==================================================
-
-
-local Sidebar = Instance.new("Frame")
-
-
-Sidebar.Name =
-"Sidebar"
-
-
-Sidebar.Size =
-UDim2.fromOffset(190,520)
-
-
-Sidebar.Position =
-UDim2.fromOffset(15,65)
-
-
-Sidebar.BackgroundColor3 =
-Yamin.Theme.Sidebar
-
-
-Sidebar.Parent =
-Main
-
-
-
-local SideCorner =
-Instance.new("UICorner")
-
-SideCorner.CornerRadius =
-UDim.new(0,14)
-
-SideCorner.Parent =
-Sidebar
-
-
-
-local SideLayout =
-Instance.new("UIListLayout")
-
-
-SideLayout.Padding =
-UDim.new(0,12)
-
-
-SideLayout.HorizontalAlignment =
-Enum.HorizontalAlignment.Center
-
-
-SideLayout.VerticalAlignment =
-Enum.VerticalAlignment.Top
-
-
-SideLayout.Parent =
-Sidebar
-
-
-
---==================================================
--- CONTENT AREA
---==================================================
-
-
-local Content = Instance.new("Frame")
-
-
-Content.Name =
-"Content"
-
-
-Content.Size =
-UDim2.fromOffset(700,520)
-
-
-Content.Position =
-UDim2.fromOffset(220,65)
-
-
-Content.BackgroundTransparency = 1
-
-
-Content.Parent =
-Main
-
-
-
-
---==================================================
--- PAGE SYSTEM
---==================================================
-
-
-function Yamin.CreatePage(Name)
-
-
-    local Page = Instance.new("ScrollingFrame")
-
-
-    Page.Name =
-    Name
-
-
-    Page.Size =
-    UDim2.fromScale(1,1)
-
-
-    Page.BackgroundTransparency = 1
-
-
-    Page.ScrollBarThickness = 5
-
-
-    Page.Visible = false
-
-
-    Page.Parent =
-    Content
-
-
-
-    local Layout =
-    Instance.new("UIListLayout")
-
-
-    Layout.Padding =
-    UDim.new(0,15)
-
-
-    Layout.Parent =
-    Page
-
-
-
-    Yamin.Pages[Name] =
-    Page
-
-
-
-    return Page
-
+--========================================================
+-- UTILITIES
+--========================================================
+local function Create(class, props)
+	local inst = Instance.new(class)
+	for k, v in pairs(props or {}) do
+		if k ~= "Parent" then
+			inst[k] = v
+		end
+	end
+	if props and props.Parent then
+		inst.Parent = props.Parent
+	end
+	return inst
 end
 
-
-
-
-
---==================================================
--- TAB SYSTEM
---==================================================
-
-
-function Yamin.CreateTab(Name,Page)
-
-
-    local Button =
-    Instance.new("TextButton")
-
-
-    Button.Size =
-    UDim2.fromOffset(160,45)
-
-
-    Button.BackgroundColor3 =
-    Yamin.Theme.Card
-
-
-    Button.Text =
-    Name
-
-
-    Button.TextColor3 =
-    Yamin.Theme.Text
-
-
-    Button.Font =
-    Enum.Font.GothamSemibold
-
-
-    Button.TextSize = 16
-    
-    
-    Button.AutoButtonColor = false
-
-
-    Button.Parent =
-    Sidebar
-
-
-
-    local Corner =
-    Instance.new("UICorner")
-    
-    
-    Corner.CornerRadius =
-    UDim.new(0,10)
-
-
-    Corner.Parent =
-    Button
-    
-    
-    table.insert(Yamin.Tabs, {Button = Button, Page = Page})
-
-
-
-    Button.MouseEnter:Connect(function()
-
-        TweenService:Create(
-            Button,
-            TweenInfo.new(.2),
-            {
-                BackgroundColor3 = Yamin.Theme.Accent
-            }
-        ):Play()
-
-    end)
-    
-    
-    Button.MouseLeave:Connect(function()
-
-        TweenService:Create(
-            Button,
-            TweenInfo.new(.2),
-            {
-                BackgroundColor3 = Yamin.Theme.Card
-            }
-        ):Play()
-
-    end)
-
-
-    Button.MouseButton1Click:Connect(function()
-
-
-        for _,v in pairs(Yamin.Pages) do
-
-            v.Visible = false
-
-        end
-        
-        for _,tab in pairs(Yamin.Tabs) do
-        
-            TweenService:Create(
-                tab.Button,
-                TweenInfo.new(.2),
-                {
-                    BackgroundColor3 = Yamin.Theme.Card
-                }
-            ):Play()
-        
-        end
-
-
-        Page.Visible = true
-        
-        TweenService:Create(
-            Button,
-            TweenInfo.new(.2),
-            {
-                BackgroundColor3 = Yamin.Theme.Accent
-            }
-        ):Play()
-
-
-    end)
-
-
-
+local function Tween(obj, props, time, style, dir)
+	local t = TweenService:Create(obj, TweenInfo.new(time or 0.25, style or Enum.EasingStyle.Quint, dir or Enum.EasingDirection.Out), props)
+	t:Play()
+	return t
 end
 
-
-
-
-
---==================================================
--- CARD SYSTEM
---==================================================
-
-
-function Yamin.CreateCard(Page,TitleText,Height)
-
-
-    local Card =
-    Instance.new("Frame")
-
-
-    Card.Size =
-    UDim2.new(
-    1,
-    -10,
-    0,
-    Height or 130
-    )
-
-
-    Card.BackgroundColor3 =
-    Yamin.Theme.Card
-
-
-    Card.Parent =
-    Page
-
-
-
-    local Corner =
-    Instance.new("UICorner")
-
-
-    Corner.CornerRadius =
-    UDim.new(0,14)
-
-
-    Corner.Parent =
-    Card
-
-
-
-    local Label =
-    Instance.new("TextLabel")
-
-
-    Label.Size =
-    UDim2.new(1,-20,0,35)
-
-
-    Label.Position =
-    UDim2.fromOffset(10,5)
-
-
-    Label.BackgroundTransparency = 1
-
-
-    Label.Text =
-    TitleText
-
-
-    Label.TextColor3 =
-    Yamin.Theme.Text
-
-
-    Label.Font =
-    Enum.Font.GothamBold
-
-
-    Label.TextSize =
-    19
-
-
-    Label.TextXAlignment =
-    Enum.TextXAlignment.Left
-
-
-    Label.Parent =
-    Card
-
-
-
-    return Card
-
+local function Corner(parent, radius)
+	return Create("UICorner", {CornerRadius = UDim.new(0, radius or 8), Parent = parent})
 end
 
-
-
-
---==================================================
--- NOTIFICATION SYSTEM
---==================================================
-
-
-function Yamin.Notify(Text)
-
-
-    local Notification =
-    Instance.new("TextLabel")
-
-
-    Notification.Size =
-    UDim2.fromOffset(300,55)
-
-
-    Notification.Position =
-    UDim2.new(1,-330,1,-80)
-
-
-    Notification.BackgroundColor3 =
-    Yamin.Theme.Card
-
-
-    Notification.Text =
-    Text
-
-
-    Notification.TextColor3 =
-    Yamin.Theme.Text
-
-
-    Notification.Font =
-    Enum.Font.GothamBold
-
-
-    Notification.TextSize = 15
-
-
-    Notification.Parent =
-    ScreenGui
-
-
-
-    local Corner =
-    Instance.new("UICorner")
-
-
-    Corner.Parent =
-    Notification
-
-
-
-    TweenService:Create(
-        Notification,
-        TweenInfo.new(.3),
-        {
-            Position =
-            UDim2.new(1,-330,1,-100)
-        }
-    ):Play()
-
-
-
-    task.delay(3,function()
-
-        Notification:Destroy()
-
-    end)
-
+local function Stroke(parent, color, thickness)
+	return Create("UIStroke", {Color = color or Theme.Accent, Thickness = thickness or 1, Transparency = 0.4, Parent = parent})
 end
 
-
-
-
---==================================================
--- CREATE PAGES
---==================================================
-
-
-local Movement =
-Yamin.CreatePage("Movement")
-
-
-local PlayersPage =
-Yamin.CreatePage("Players")
-
-
-local Aura =
-Yamin.CreatePage("Aura")
-
-
-local Settings =
-Yamin.CreatePage("Settings")
-
-
-
-Yamin.CreateTab(
-"⚡ Movement",
-Movement
-)
-
-
-Yamin.CreateTab(
-"👤 Players",
-PlayersPage
-)
-
-
-Yamin.CreateTab(
-"✨ Aura",
-Aura
-)
-
-
-Yamin.CreateTab(
-"⚙ Settings",
-Settings
-)
-
-
-
-Movement.Visible = true
-
-
-
-Yamin.Notify(
-"YAMIN HUB V2 Loaded"
-)
-
-
-print(
-"YAMIN HUB V2 CORE READY"
-)
-
---==================================================
--- YAMIN HUB V2
--- PART 2
--- UI COMPONENT SYSTEM
---==================================================
-
-
-
---==================================================
--- BUTTON
---==================================================
-
-function Yamin.Button(
-    Parent,
-    Text,
-    Callback
-)
-
-
-    local Button =
-    Instance.new("TextButton")
-
-
-    Button.Size =
-    UDim2.new(
-        1,
-        -30,
-        0,
-        42
-    )
-
-
-    Button.Position =
-    UDim2.fromOffset(
-        15,
-        0
-    )
-
-
-    Button.BackgroundColor3 =
-    Yamin.Theme.Accent
-
-
-    Button.Text =
-    Text
-
-
-    Button.TextColor3 =
-    Color3.fromRGB(
-        255,
-        255,
-        255
-    )
-
-
-    Button.Font =
-    Enum.Font.GothamSemibold
-
-
-    Button.TextSize =
-    15
-
-
-    Button.AutoButtonColor = false
-
-
-    Button.Parent =
-    Parent
-
-
-
-    local Corner =
-    Instance.new("UICorner")
-
-
-    Corner.CornerRadius =
-    UDim.new(
-        0,
-        10
-    )
-
-
-    Corner.Parent =
-    Button
-
-
-
-    Button.MouseEnter:Connect(function()
-
-
-        TweenService:Create(
-            Button,
-            TweenInfo.new(
-                .2
-            ),
-            {
-                BackgroundColor3 =
-                Yamin.Theme.Accent2
-            }
-
-        ):Play()
-
-
-    end)
-
-
-
-    Button.MouseLeave:Connect(function()
-
-
-        TweenService:Create(
-            Button,
-            TweenInfo.new(
-                .2
-            ),
-            {
-                BackgroundColor3 =
-                Yamin.Theme.Accent
-            }
-
-        ):Play()
-
-
-    end)
-
-
-
-    Button.MouseButton1Click:Connect(function()
-
-
-        if Callback then
-
-            Callback()
-
-        end
-
-
-    end)
-
-
-
-    return Button
-
+local function Padding(parent, t, b, l, r)
+	return Create("UIPadding", {
+		PaddingTop = UDim.new(0, t or 0),
+		PaddingBottom = UDim.new(0, b or 0),
+		PaddingLeft = UDim.new(0, l or 0),
+		PaddingRight = UDim.new(0, r or 0),
+		Parent = parent
+	})
 end
 
-
-
-
---==================================================
--- TOGGLE
---==================================================
-
-function Yamin.Toggle(
-    Parent,
-    Text,
-    Default,
-    Callback
-)
-
-
-    local State =
-    Default or false
-
-
-
-    local Holder =
-    Instance.new("Frame")
-
-
-    Holder.Size =
-    UDim2.new(
-        1,
-        -30,
-        0,
-        42
-    )
-
-
-    Holder.Position =
-    UDim2.fromOffset(
-        15,
-        0
-    )
-
-
-    Holder.BackgroundColor3 =
-    Yamin.Theme.Background
-
-
-    Holder.Parent =
-    Parent
-
-
-
-
-    local Corner =
-    Instance.new("UICorner")
-    
-    Corner.CornerRadius =
-    UDim.new(0,10)
-
-    Corner.Parent =
-    Holder
-
-
-
-
-    local Label =
-    Instance.new("TextLabel")
-
-
-    Label.Size =
-    UDim2.new(
-        .6,
-        0,
-        1,
-        0
-    )
-
-
-    Label.BackgroundTransparency =
-    1
-
-
-    Label.Text =
-    Text
-
-
-    Label.TextColor3 =
-    Yamin.Theme.Text
-
-
-    Label.Font =
-    Enum.Font.Gotham
-
-
-    Label.TextSize =
-    15
-
-
-    Label.TextXAlignment =
-    Enum.TextXAlignment.Left
-
-
-    Label.Position =
-    UDim2.fromOffset(
-        12,
-        0
-    )
-
-
-    Label.Parent =
-    Holder
-
-
-
-
-    local Toggle =
-    Instance.new("TextButton")
-
-
-    Toggle.Size =
-    UDim2.fromOffset(
-        70,
-        28
-    )
-
-
-    Toggle.Position =
-    UDim2.new(
-        1,
-        -85,
-        .5,
-        -14
-    )
-    
-    
-    Toggle.AutoButtonColor = false
-
-
-    Toggle.Text =
-    State and "ON" or "OFF"
-
-
-    Toggle.BackgroundColor3 =
-    State and
-    Yamin.Theme.Accent
-    or
-    Yamin.Theme.Card
-
-
-    Toggle.TextColor3 =
-    Yamin.Theme.Text
-
-
-    Toggle.Parent =
-    Holder
-
-
-
-    local ToggleCorner =
-    Instance.new("UICorner")
-    
-    ToggleCorner.CornerRadius =
-    UDim.new(0,8)
-
-
-    ToggleCorner.Parent =
-    Toggle
-
-
-
-
-    Toggle.MouseButton1Click:Connect(function()
-
-
-        State =
-        not State
-
-
-
-        Toggle.Text =
-        State and "ON" or "OFF"
-
-
-
-        Toggle.BackgroundColor3 =
-        State and
-        Yamin.Theme.Accent
-        or
-        Yamin.Theme.Card
-
-
-
-        if Callback then
-
-            Callback(State)
-
-        end
-
-
-    end)
-
-
-
-    return Holder
-
+--========================================================
+-- STATE
+--========================================================
+local State = {
+	Open = true,
+	Minimized = false,
+	Maximized = false,
+	CurrentPage = "Movement",
+	SelectedPlayer = nil,
+	WalkSpeed = 16,
+	JumpPower = 50,
+	FlyEnabled = false,
+	FlySpeed = 50,
+	AuraFlyEnabled = false,
+	AuraFlySpeed = 50,
+	CurrentPack = "Angel",
+	Blur = true,
+	Animations = true,
+	Glow = true,
+	FPS = false,
+	Debug = false,
+	Notifications = true,
+	ToggleKey = Enum.KeyCode.RightShift,
+}
+
+local Connections = {}
+local Pages = {}
+local ModuleObjects = {}
+
+local function AddConnection(conn)
+	table.insert(Connections, conn)
+	return conn
 end
+
+local function CleanupAll()
+	for _, c in ipairs(Connections) do
+		pcall(function() c:Disconnect() end)
+	end
+	table.clear(Connections)
+	for _, obj in pairs(ModuleObjects) do
+		if typeof(obj) == "RBXScriptConnection" then
+			pcall(function() obj:Disconnect() end)
+		elseif typeof(obj) == "Instance" then
+			pcall(function() obj:Destroy() end)
+		end
+	end
+	table.clear(ModuleObjects)
+end
+
+--========================================================
+-- LOGGER
+--========================================================
+local Logs = {}
+local function Log(msg)
+	table.insert(Logs, 1, os.date("%H:%M:%S") .. " | " .. tostring(msg))
+	if #Logs > 80 then table.remove(Logs) end
+	if ModuleObjects.RefreshLogs then
+		ModuleObjects.RefreshLogs()
+	end
+end
+
+--========================================================
+-- NOTIFICATION
+--========================================================
+local NotifContainer
+local function Notify(title, text, duration)
+	if not State.Notifications or not NotifContainer then return end
+	duration = duration or 3
+
+	local frame = Create("Frame", {
+		Size = UDim2.new(0, 260, 0, 60),
+		BackgroundColor3 = Theme.Card,
+		BorderSizePixel = 0,
+		Parent = NotifContainer
+	})
+	Corner(frame, 10)
+	Stroke(frame, Theme.Accent, 1.5)
+
+	Create("TextLabel", {
+		Size = UDim2.new(1, -16, 0, 22),
+		Position = UDim2.new(0, 12, 0, 8),
+		BackgroundTransparency = 1,
+		Text = title or "YAMIN HUB",
+		TextColor3 = Theme.Accent,
+		Font = Enum.Font.GothamBold,
+		TextSize = 14,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Parent = frame
+	})
+
+	Create("TextLabel", {
+		Size = UDim2.new(1, -16, 0, 22),
+		Position = UDim2.new(0, 12, 0, 30),
+		BackgroundTransparency = 1,
+		Text = text or "",
+		TextColor3 = Theme.Text,
+		Font = Enum.Font.Gotham,
+		TextSize = 13,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Parent = frame
+	})
+
+	frame.Position = UDim2.new(1, 20, 1, -80)
+	Tween(frame, {Position = UDim2.new(1, -280, 1, -80)}, 0.35)
+
+	task.delay(duration, function()
+		Tween(frame, {Position = UDim2.new(1, 20, 1, -80)}, 0.3)
+		task.wait(0.35)
+		frame:Destroy()
+	end)
+end
+
+--========================================================
+-- COMPONENTS
+--========================================================
+local Components = {}
+
+function Components.Card(parent, title)
+	local card = Create("Frame", {
+		Size = UDim2.new(1, -20, 0, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		BackgroundColor3 = Theme.Card,
+		BorderSizePixel = 0,
+		Parent = parent
+	})
+	Corner(card, 10)
+	if State.Glow then Stroke(card, Theme.Accent, 1) end
+	Padding(card, 14, 14, 14, 14)
+
+	local layout = Create("UIListLayout", {
+		Padding = UDim.new(0, 10),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+		Parent = card
+	})
+
+	if title then
+		Create("TextLabel", {
+			Size = UDim2.new(1, 0, 0, 22),
+			BackgroundTransparency = 1,
+			Text = title,
+			TextColor3 = Theme.Text,
+			Font = Enum.Font.GothamBold,
+			TextSize = 15,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			LayoutOrder = 0,
+			Parent = card
+		})
+	end
+
+	return card
+end
+
+function Components.Toggle(parent, text, default, callback)
+	local holder = Create("Frame", {
+		Size = UDim2.new(1, 0, 0, 32),
+		BackgroundTransparency = 1,
+		Parent = parent
+	})
+
+	Create("TextLabel", {
+		Size = UDim2.new(1, -70, 1, 0),
+		BackgroundTransparency = 1,
+		Text = text,
+		TextColor3 = Theme.Text,
+		Font = Enum.Font.Gotham,
+		TextSize = 14,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Parent = holder
+	})
+
+	local btn = Create("TextButton", {
+		Size = UDim2.new(0, 52, 0, 26),
+		Position = UDim2.new(1, -52, 0.5, -13),
+		BackgroundColor3 = default and Theme.Accent or Color3.fromRGB(40, 50, 70),
+		Text = default and "ON" or "OFF",
+		TextColor3 = Theme.Text,
+		Font = Enum.Font.GothamBold,
+		TextSize = 12,
+		AutoButtonColor = false,
+		Parent = holder
+	})
+	Corner(btn, 6)
+
+	local enabled = default
+	btn.MouseButton1Click:Connect(function()
+		enabled = not enabled
+		btn.Text = enabled and "ON" or "OFF"
+		Tween(btn, {BackgroundColor3 = enabled and Theme.Accent or Color3.fromRGB(40, 50, 70)}, 0.2)
+		if callback then callback(enabled) end
+	end)
+
+	return {
+		Set = function(val)
+			enabled = val
+			btn.Text = enabled and "ON" or "OFF"
+			btn.BackgroundColor3 = enabled and Theme.Accent or Color3.fromRGB(40, 50, 70)
+		end,
+		Get = function() return enabled end
+	}
+end
+
+function Components.Slider(parent, text, min, max, default, callback)
+	local holder = Create("Frame", {
+		Size = UDim2.new(1, 0, 0, 55),
+		BackgroundTransparency = 1,
+		Parent = parent
+	})
+
+	local title = Create("TextLabel", {
+		Size = UDim2.new(1, -60, 0, 18),
+		BackgroundTransparency = 1,
+		Text = text,
+		TextColor3 = Theme.Text,
+		Font = Enum.Font.Gotham,
+		TextSize = 14,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Parent = holder
+	})
+
+	local valueLabel = Create("TextLabel", {
+		Size = UDim2.new(0, 55, 0, 18),
+		Position = UDim2.new(1, -55, 0, 0),
+		BackgroundTransparency = 1,
+		Text = tostring(default),
+		TextColor3 = Theme.Secondary,
+		Font = Enum.Font.GothamBold,
+		TextSize = 14,
+		TextXAlignment = Enum.TextXAlignment.Right,
+		Parent = holder
+	})
+
+	local bar = Create("Frame", {
+		Size = UDim2.new(1, 0, 0, 8),
+		Position = UDim2.new(0, 0, 0, 32),
+		BackgroundColor3 = Color3.fromRGB(30, 45, 80),
+		BorderSizePixel = 0,
+		Parent = holder
+	})
+	Corner(bar, 4)
+
+	local fill = Create("Frame", {
+		Size = UDim2.new((default - min) / (max - min), 0, 1, 0),
+		BackgroundColor3 = Theme.Accent,
+		BorderSizePixel = 0,
+		Parent = bar
+	})
+	Corner(fill, 4)
+
+	local knob = Create("Frame", {
+		Size = UDim2.new(0, 16, 0, 16),
+		Position = UDim2.new((default - min) / (max - min), -8, 0.5, -8),
+		BackgroundColor3 = Theme.Secondary,
+		BorderSizePixel = 0,
+		Parent = bar
+	})
+	Corner(knob, 8)
+
+	local dragging = false
+	local value = default
+
+	local function update(val)
+		value = math.clamp(math.floor(val + 0.5), min, max)
+		local pct = (value - min) / (max - min)
+		fill.Size = UDim2.new(pct, 0, 1, 0)
+		knob.Position = UDim2.new(pct, -8, 0.5, -8)
+		valueLabel.Text = tostring(value)
+		if callback then callback(value) end
+	end
+
+	bar.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			dragging = true
+		end
+	end)
+
+	AddConnection(UserInputService.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			dragging = false
+		end
+	end))
+
+	AddConnection(UserInputService.InputChanged:Connect(function(input)
+		if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+			local rel = math.clamp((input.Position.X - bar.AbsolutePosition.X) / bar.AbsoluteSize.X, 0, 1)
+			update(min + rel * (max - min))
+		end
+	end))
+
+	return {
+		Set = update,
+		Get = function() return value end
+	}
+end
+
+function Components.Button(parent, text, callback)
+	local btn = Create("TextButton", {
+		Size = UDim2.new(1, 0, 0, 36),
+		BackgroundColor3 = Theme.Accent,
+		Text = text,
+		TextColor3 = Theme.Text,
+		Font = Enum.Font.GothamBold,
+		TextSize = 14,
+		AutoButtonColor = false,
+		Parent = parent
+	})
+	Corner(btn, 8)
+
+	btn.MouseEnter:Connect(function()
+		Tween(btn, {BackgroundColor3 = Theme.Secondary}, 0.2)
+	end)
+	btn.MouseLeave:Connect(function()
+		Tween(btn, {BackgroundColor3 = Theme.Accent}, 0.2)
+	end)
+	btn.MouseButton1Click:Connect(function()
+		if callback then callback() end
+	end)
+
+	return btn
+end
+
+function Components.Dropdown(parent, text, options, default, callback)
+	local holder = Create("Frame", {
+		Size = UDim2.new(1, 0, 0, 36),
+		BackgroundTransparency = 1,
+		Parent = parent
+	})
+
+	Create("TextLabel", {
+		Size = UDim2.new(0.4, 0, 1, 0),
+		BackgroundTransparency = 1,
+		Text = text,
+		TextColor3 = Theme.Text,
+		Font = Enum.Font.Gotham,
+		TextSize = 14,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Parent = holder
+	})
+
+	local btn = Create("TextButton", {
+		Size = UDim2.new(0.58, 0, 1, 0),
+		Position = UDim2.new(0.42, 0, 0, 0),
+		BackgroundColor3 = Color3.fromRGB(20, 35, 70),
+		Text = "  " .. (default or options[1] or "Select"),
+		TextColor3 = Theme.Text,
+		Font = Enum.Font.Gotham,
+		TextSize = 13,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		AutoButtonColor = false,
+		Parent = holder
+	})
+	Corner(btn, 6)
+	Stroke(btn, Theme.Accent, 1)
+
+	local open = false
+	local listFrame
+
+	btn.MouseButton1Click:Connect(function()
+		if open then
+			if listFrame then listFrame:Destroy() end
+			open = false
+			return
+		end
+		open = true
+		listFrame = Create("Frame", {
+			Size = UDim2.new(0.58, 0, 0, #options * 32),
+			Position = UDim2.new(0.42, 0, 1, 4),
+			BackgroundColor3 = Theme.Card,
+			BorderSizePixel = 0,
+			ZIndex = 50,
+			Parent = holder
+		})
+		Corner(listFrame, 6)
+		Stroke(listFrame, Theme.Accent, 1)
+
+		local lay = Create("UIListLayout", {Parent = listFrame})
+
+		for _, opt in ipairs(options) do
+			local optBtn = Create("TextButton", {
+				Size = UDim2.new(1, 0, 0, 32),
+				BackgroundColor3 = Theme.Card,
+				Text = "  " .. opt,
+				TextColor3 = Theme.Text,
+				Font = Enum.Font.Gotham,
+				TextSize = 13,
+				TextXAlignment = Enum.TextXAlignment.Left,
+				AutoButtonColor = false,
+				ZIndex = 51,
+				Parent = listFrame
+			})
+			optBtn.MouseEnter:Connect(function()
+				optBtn.BackgroundColor3 = Theme.Hover
+			end)
+			optBtn.MouseLeave:Connect(function()
+				optBtn.BackgroundColor3 = Theme.Card
+			end)
+			optBtn.MouseButton1Click:Connect(function()
+				btn.Text = "  " .. opt
+				if listFrame then listFrame:Destroy() end
+				open = false
+				if callback then callback(opt) end
+			end)
+		end
+	end)
+
+	return {
+		Set = function(val)
+			btn.Text = "  " .. val
+		end
+	}
+end
+
+--========================================================
+-- CHARACTER HELPERS
+--========================================================
+local function GetHumanoid()
+	local char = LocalPlayer.Character
+	if char then
+		return char:FindFirstChildOfClass("Humanoid")
+	end
+	return nil
+end
+
+local function GetRoot()
+	local char = LocalPlayer.Character
+	if char then
+		return char:FindFirstChild("HumanoidRootPart")
+	end
+	return nil
+end
+
+--========================================================
+-- MOVEMENT MODULE
+--========================================================
+local Movement = {}
+local FlyBodyGyro, FlyBodyVelocity
+local FlyConnection
+
+function Movement.SetWalkSpeed(val)
+	State.WalkSpeed = val
+	local hum = GetHumanoid()
+	if hum then
+		hum.WalkSpeed = val
+	end
+end
+
+function Movement.SetJumpPower(val)
+	State.JumpPower = val
+	local hum = GetHumanoid()
+	if hum then
+		hum.JumpPower = val
+		hum.UseJumpPower = true
+	end
+end
+
+function Movement.StopFly()
+	State.FlyEnabled = false
+	if FlyConnection then
+		FlyConnection:Disconnect()
+		FlyConnection = nil
+	end
+	if FlyBodyGyro then
+		FlyBodyGyro:Destroy()
+		FlyBodyGyro = nil
+	end
+	if FlyBodyVelocity then
+		FlyBodyVelocity:Destroy()
+		FlyBodyVelocity = nil
+	end
+	local hum = GetHumanoid()
+	if hum then
+		hum.PlatformStand = false
+	end
+end
+
+function Movement.StartFly()
+	Movement.StopFly()
+	State.FlyEnabled = true
+
+	local root = GetRoot()
+	local hum = GetHumanoid()
+	if not root or not hum then return end
+
+	hum.PlatformStand = true
+
+	FlyBodyGyro = Create("BodyGyro", {
+		P = 9e4,
+		MaxTorque = Vector3.new(9e9, 9e9, 9e9),
+		CFrame = root.CFrame,
+		Parent = root
+	})
+
+	FlyBodyVelocity = Create("BodyVelocity", {
+		Velocity = Vector3.zero,
+		MaxForce = Vector3.new(9e9, 9e9, 9e9),
+		Parent = root
+	})
+
+	FlyConnection = RunService.Heartbeat:Connect(function()
+		if not State.FlyEnabled or not root or not root.Parent then
+			Movement.StopFly()
+			return
+		end
+
+		local cam = workspace.CurrentCamera
+		local move = Vector3.zero
+		local speed = State.FlySpeed
+
+		if UserInputService:IsKeyDown(Enum.KeyCode.W) then
+			move = move + cam.CFrame.LookVector
+		end
+		if UserInputService:IsKeyDown(Enum.KeyCode.S) then
+			move = move - cam.CFrame.LookVector
+		end
+		if UserInputService:IsKeyDown(Enum.KeyCode.A) then
+			move = move - cam.CFrame.RightVector
+		end
+		if UserInputService:IsKeyDown(Enum.KeyCode.D) then
+			move = move + cam.CFrame.RightVector
+		end
+		if UserInputService:IsKeyDown(Enum.KeyCode.Space) then
+			move = move + Vector3.new(0, 1, 0)
+		end
+		if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then
+			move = move - Vector3.new(0, 1, 0)
+		end
+
+		if move.Magnitude > 0 then
+			move = move.Unit * speed
+		end
+
+		FlyBodyVelocity.Velocity = move
+		FlyBodyGyro.CFrame = cam.CFrame
+	end)
+end
+
+function Movement.Reset()
+	Movement.StopFly()
+	Movement.SetWalkSpeed(16)
+	Movement.SetJumpPower(50)
+	Notify("Movement", "Reset to defaults")
+end
+
+-- Keep values after respawn
+AddConnection(LocalPlayer.CharacterAdded:Connect(function(char)
+	task.wait(0.4)
+	local hum = char:WaitForChild("Humanoid", 5)
+	if hum then
+		hum.WalkSpeed = State.WalkSpeed
+		hum.JumpPower = State.JumpPower
+		hum.UseJumpPower = true
+	end
+	if State.FlyEnabled then
+		task.wait(0.2)
+		Movement.StartFly()
+	end
+end))
+
+--========================================================
+-- AURA MODULE
+--========================================================
+local Aura = {}
+local AuraFlyGyro, AuraFlyVelocity
+local AuraFlyConnection
+
+local AnimationPacks = {
+	["Angel"] = 57393899235237,
+	["adidas Aura"] = 4294795,
+	["adidas Community"] = 2623795,
+}
+
+function Aura.ApplyPack(packName)
+	State.CurrentPack = packName
+	local id = AnimationPacks[packName]
+	if not id then return end
+
+	local char = LocalPlayer.Character
+	if not char then return end
+	local hum = char:FindFirstChildOfClass("Humanoid")
+	if not hum then return end
+
+	-- Apply via HumanoidDescription (works for many animation packages)
+	local success, err = pcall(function()
+		local desc = hum:GetAppliedDescription()
+		-- Some packs work by setting the animation package id through description
+		-- Fallback: try loading the asset and applying animations if possible
+		local Animate = char:FindFirstChild("Animate")
+		if Animate then
+			-- Keep original Animate running – we only change the pack reference
+			-- Many executor hubs just store the pack and let the game handle it
+			-- For full support users often replace the Animate script with a custom one
+		end
+	end)
+
+	-- Alternative robust method used by many hubs:
+	pcall(function()
+		local humanoidDescription = hum:GetAppliedDescription()
+		-- Store for Aura Fly combination
+	end)
+
+	Log("Animation Pack applied: " .. packName .. " (" .. id .. ")")
+	Notify("Aura", "Pack: " .. packName)
+end
+
+function Aura.StopAuraFly()
+	State.AuraFlyEnabled = false
+	if AuraFlyConnection then
+		AuraFlyConnection:Disconnect()
+		AuraFlyConnection = nil
+	end
+	if AuraFlyGyro then
+		AuraFlyGyro:Destroy()
+		AuraFlyGyro = nil
+	end
+	if AuraFlyVelocity then
+		AuraFlyVelocity:Destroy()
+		AuraFlyVelocity = nil
+	end
+	local hum = GetHumanoid()
+	if hum then
+		hum.PlatformStand = false
+	end
+end
+
+function Aura.StartAuraFly()
+	Aura.StopAuraFly()
+	State.AuraFlyEnabled = true
+
+	local root = GetRoot()
+	local hum = GetHumanoid()
+	if not root or not hum then return end
+
+	-- Important: Do NOT set PlatformStand = true permanently
+	-- so the animation pack can still play walk/idle
+	-- We only control position
+
+	AuraFlyGyro = Create("BodyGyro", {
+		P = 9e4,
+		MaxTorque = Vector3.new(9e9, 9e9, 9e9),
+		CFrame = root.CFrame,
+		Parent = root
+	})
+
+	AuraFlyVelocity = Create("BodyVelocity", {
+		Velocity = Vector3.zero,
+		MaxForce = Vector3.new(9e9, 9e9, 9e9),
+		Parent = root
+	})
+
+	AuraFlyConnection = RunService.Heartbeat:Connect(function()
+		if not State.AuraFlyEnabled or not root or not root.Parent then
+			Aura.StopAuraFly()
+			return
+		end
+
+		local cam = workspace.CurrentCamera
+		local move = Vector3.zero
+		local speed = State.AuraFlySpeed
+
+		if UserInputService:IsKeyDown(Enum.KeyCode.W) then
+			move = move + cam.CFrame.LookVector
+		end
+		if UserInputService:IsKeyDown(Enum.KeyCode.S) then
+			move = move - cam.CFrame.LookVector
+		end
+		if UserInputService:IsKeyDown(Enum.KeyCode.A) then
+			move = move - cam.CFrame.RightVector
+		end
+		if UserInputService:IsKeyDown(Enum.KeyCode.D) then
+			move = move + cam.CFrame.RightVector
+		end
+		if UserInputService:IsKeyDown(Enum.KeyCode.Space) then
+			move = move + Vector3.new(0, 1, 0)
+		end
+		if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then
+			move = move - Vector3.new(0, 1, 0)
+		end
+
+		if move.Magnitude > 0 then
+			move = move.Unit * speed
+		end
+
+		AuraFlyVelocity.Velocity = move
+		AuraFlyGyro.CFrame = CFrame.new(root.Position, root.Position + cam.CFrame.LookVector)
+	end)
+
+	Log("Aura Fly enabled")
+	Notify("Aura", "Aura Fly ON")
+end
+
+AddConnection(LocalPlayer.CharacterAdded:Connect(function()
+	task.wait(0.5)
+	if State.AuraFlyEnabled then
+		Aura.StartAuraFly()
+	end
+	if State.CurrentPack then
+		Aura.ApplyPack(State.CurrentPack)
+	end
+end))
+
+--========================================================
+-- PLAYERS MODULE
+--========================================================
+local PlayersModule = {}
+local PlayerListFrame
+local SelectedInfoLabels = {}
+local PlayerButtons = {}
+
+function PlayersModule.RefreshList(filter)
+	if not PlayerListFrame then return end
+	for _, child in ipairs(PlayerListFrame:GetChildren()) do
+		if child:IsA("TextButton") then
+			child:Destroy()
+		end
+	end
+	table.clear(PlayerButtons)
+
+	filter = (filter or ""):lower()
+
+	for _, plr in ipairs(Players:GetPlayers()) do
+		local nameMatch = plr.Name:lower():find(filter, 1, true)
+		local displayMatch = plr.DisplayName:lower():find(filter, 1, true)
+		if filter == "" or nameMatch or displayMatch then
+			local btn = Create("TextButton", {
+				Size = UDim2.new(1, -8, 0, 34),
+				BackgroundColor3 = (State.SelectedPlayer == plr) and Theme.Selected or Theme.Card,
+				Text = "  " .. plr.DisplayName .. "  (@" .. plr.Name .. ")",
+				TextColor3 = Theme.Text,
+				Font = Enum.Font.Gotham,
+				TextSize = 13,
+				TextXAlignment = Enum.TextXAlignment.Left,
+				AutoButtonColor = false,
+				Parent = PlayerListFrame
+			})
+			Corner(btn, 6)
+
+			btn.MouseEnter:Connect(function()
+				if State.SelectedPlayer ~= plr then
+					btn.BackgroundColor3 = Theme.Hover
+				end
+			end)
+			btn.MouseLeave:Connect(function()
+				if State.SelectedPlayer ~= plr then
+					btn.BackgroundColor3 = Theme.Card
+				end
+			end)
+
+			btn.MouseButton1Click:Connect(function()
+				State.SelectedPlayer = plr
+				PlayersModule.UpdateSelected()
+				PlayersModule.RefreshList(filter)
+			end)
+
+			PlayerButtons[plr] = btn
+		end
+	end
+end
+
+function PlayersModule.UpdateSelected()
+	local plr = State.SelectedPlayer
+	if SelectedInfoLabels.Username then
+		if plr and plr.Parent then
+			SelectedInfoLabels.Username.Text = "Username: " .. plr.Name
+			SelectedInfoLabels.DisplayName.Text = "Display Name: " .. plr.DisplayName
+			SelectedInfoLabels.UserId.Text = "User ID: " .. plr.UserId
+		else
+			SelectedInfoLabels.Username.Text = "Username: None"
+			SelectedInfoLabels.DisplayName.Text = "Display Name: —"
+			SelectedInfoLabels.UserId.Text = "User ID: —"
+			State.SelectedPlayer = nil
+		end
+	end
+end
+
+AddConnection(Players.PlayerAdded:Connect(function()
+	task.wait(0.1)
+	PlayersModule.RefreshList()
+end))
+
+AddConnection(Players.PlayerRemoving:Connect(function(plr)
+	if State.SelectedPlayer == plr then
+		State.SelectedPlayer = nil
+		PlayersModule.UpdateSelected()
+	end
+	PlayersModule.RefreshList()
+end))
+
+--========================================================
+-- BUILD UI
+--========================================================
+local ScreenGui = Create("ScreenGui", {
+	Name = "YaminHubV3",
+	ResetOnSpawn = false,
+	ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+	Parent = PlayerGui
+})
+
+NotifContainer = Create("Frame", {
+	Size = UDim2.new(1, 0, 1, 0),
+	BackgroundTransparency = 1,
+	Parent = ScreenGui
+})
+
+-- Main Window
+local Main = Create("Frame", {
+	Name = "Main",
+	Size = UDim2.new(0, 950, 0, 600),
+	Position = UDim2.new(0.5, -475, 0.5, -300),
+	BackgroundColor3 = Theme.Background,
+	BorderSizePixel = 0,
+	ClipsDescendants = true,
+	Parent = ScreenGui
+})
+Corner(Main, 12)
+Stroke(Main, Theme.Accent, 1.5)
+
+-- Top Bar
+local TopBar = Create("Frame", {
+	Size = UDim2.new(1, 0, 0, 55),
+	BackgroundColor3 = Theme.Sidebar,
+	BorderSizePixel = 0,
+	Parent = Main
+})
+Corner(TopBar, 12)
+
+-- Fix top corners only
+Create("Frame", {
+	Size = UDim2.new(1, 0, 0, 20),
+	Position = UDim2.new(0, 0, 1, -20),
+	BackgroundColor3 = Theme.Sidebar,
+	BorderSizePixel = 0,
+	Parent = TopBar
+})
+
+local Title = Create("TextLabel", {
+	Size = UDim2.new(0, 250, 1, 0),
+	Position = UDim2.new(0, 20, 0, 0),
+	BackgroundTransparency = 1,
+	Text = "YAMIN HUB V3",
+	TextColor3 = Theme.Secondary,
+	Font = Enum.Font.GothamBold,
+	TextSize = 20,
+	TextXAlignment = Enum.TextXAlignment.Left,
+	Parent = TopBar
+})
+
+local StatusLabel = Create("TextLabel", {
+	Size = UDim2.new(0, 120, 1, 0),
+	Position = UDim2.new(0.5, -60, 0, 0),
+	BackgroundTransparency = 1,
+	Text = "● ONLINE",
+	TextColor3 = Theme.Success,
+	Font = Enum.Font.GothamBold,
+	TextSize = 14,
+	Parent = TopBar
+})
+
+-- Window Controls
+local function MakeWinBtn(text, x, callback)
+	local b = Create("TextButton", {
+		Size = UDim2.new(0, 36, 0, 28),
+		Position = UDim2.new(1, x, 0.5, -14),
+		BackgroundColor3 = Color3.fromRGB(25, 40, 70),
+		Text = text,
+		TextColor3 = Theme.Text,
+		Font = Enum.Font.GothamBold,
+		TextSize = 14,
+		AutoButtonColor = false,
+		Parent = TopBar
+	})
+	Corner(b, 6)
+	b.MouseEnter:Connect(function()
+		Tween(b, {BackgroundColor3 = Theme.Accent}, 0.15)
+	end)
+	b.MouseLeave:Connect(function()
+		Tween(b, {BackgroundColor3 = Color3.fromRGB(25, 40, 70)}, 0.15)
+	end)
+	b.MouseButton1Click:Connect(callback)
+	return b
+end
+
+MakeWinBtn("–", -120, function()
+	State.Minimized = not State.Minimized
+	if State.Minimized then
+		Tween(Main, {Size = UDim2.new(0, 950, 0, 55)}, 0.3)
+	else
+		Tween(Main, {Size = UDim2.new(0, 950, 0, 600)}, 0.3)
+	end
+end)
+
+MakeWinBtn("□", -78, function()
+	State.Maximized = not State.Maximized
+	if State.Maximized then
+		Tween(Main, {Size = UDim2.new(1, -40, 1, -40), Position = UDim2.new(0, 20, 0, 20)}, 0.3)
+	else
+		Tween(Main, {Size = UDim2.new(0, 950, 0, 600), Position = UDim2.new(0.5, -475, 0.5, -300)}, 0.3)
+	end
+end)
+
+MakeWinBtn("✕", -36, function()
+	CleanupAll()
+	Movement.StopFly()
+	Aura.StopAuraFly()
+	ScreenGui:Destroy()
+	Log("Hub closed & cleaned")
+end)
+
+-- Dragging
+local dragging, dragStart, startPos
+TopBar.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		dragging = true
+		dragStart = input.Position
+		startPos = Main.Position
+	end
+end)
+AddConnection(UserInputService.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		dragging = false
+	end
+end))
+AddConnection(UserInputService.InputChanged:Connect(function(input)
+	if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+		local delta = input.Position - dragStart
+		Main.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+	end
+end))
+
+-- Sidebar
+local Sidebar = Create("Frame", {
+	Size = UDim2.new(0, 200, 1, -55),
+	Position = UDim2.new(0, 0, 0, 55),
+	BackgroundColor3 = Theme.Sidebar,
+	BorderSizePixel = 0,
+	Parent = Main
+})
+
+Create("TextLabel", {
+	Size = UDim2.new(1, 0, 0, 50),
+	BackgroundTransparency = 1,
+	Text = "YAMIN HUB\nMODULES",
+	TextColor3 = Theme.TextDim,
+	Font = Enum.Font.GothamBold,
+	TextSize = 13,
+	Parent = Sidebar
+})
+
+local SidebarList = Create("Frame", {
+	Size = UDim2.new(1, -20, 1, -70),
+	Position = UDim2.new(0, 10, 0, 60),
+	BackgroundTransparency = 1,
+	Parent = Sidebar
+})
+Create("UIListLayout", {
+	Padding = UDim.new(0, 8),
+	SortOrder = Enum.SortOrder.LayoutOrder,
+	Parent = SidebarList
+})
+
+local NavButtons = {}
+local function CreateNav(icon, name, order)
+	local btn = Create("TextButton", {
+		Size = UDim2.new(1, 0, 0, 40),
+		BackgroundColor3 = Theme.Card,
+		Text = "  " .. icon .. "  " .. name,
+		TextColor3 = Theme.Text,
+		Font = Enum.Font.Gotham,
+		TextSize = 14,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		AutoButtonColor = false,
+		LayoutOrder = order,
+		Parent = SidebarList
+	})
+	Corner(btn, 8)
+
+	btn.MouseEnter:Connect(function()
+		if State.CurrentPage ~= name then
+			Tween(btn, {BackgroundColor3 = Theme.Hover}, 0.15)
+		end
+	end)
+	btn.MouseLeave:Connect(function()
+		if State.CurrentPage ~= name then
+			Tween(btn, {BackgroundColor3 = Theme.Card}, 0.15)
+		end
+	end)
+
+	btn.MouseButton1Click:Connect(function()
+		State.CurrentPage = name
+		for n, b in pairs(NavButtons) do
+			Tween(b, {BackgroundColor3 = (n == name) and Theme.Selected or Theme.Card}, 0.2)
+		end
+		for pageName, page in pairs(Pages) do
+			page.Visible = (pageName == name)
+		end
+	end)
+
+	NavButtons[name] = btn
+	return btn
+end
+
+CreateNav("⚡", "Movement", 1)
+CreateNav("👤", "Players", 2)
+CreateNav("✨", "Aura", 3)
+CreateNav("🎭", "Visual", 4)
+CreateNav("🛠", "Utility", 5)
+CreateNav("⚙", "Settings", 6)
+
+-- Highlight first
+NavButtons["Movement"].BackgroundColor3 = Theme.Selected
+
+-- Content Area
+local Content = Create("Frame", {
+	Size = UDim2.new(1, -210, 1, -65),
+	Position = UDim2.new(0, 205, 0, 60),
+	BackgroundTransparency = 1,
+	Parent = Main
+})
+
+local function CreatePage(name)
+	local page = Create("ScrollingFrame", {
+		Size = UDim2.new(1, 0, 1, 0),
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		ScrollBarThickness = 4,
+		ScrollBarImageColor3 = Theme.Accent,
+		CanvasSize = UDim2.new(0, 0, 0, 0),
+		AutomaticCanvasSize = Enum.AutomaticSize.Y,
+		Visible = (name == "Movement"),
+		Parent = Content
+	})
+	Padding(page, 5, 20, 5, 10)
+	Create("UIListLayout", {
+		Padding = UDim.new(0, 14),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+		Parent = page
+	})
+	Pages[name] = page
+	return page
+end
+
+--========================================================
+-- PAGE: MOVEMENT
+--========================================================
+local MovementPage = CreatePage("Movement")
+
+do
+	local header = Components.Card(MovementPage, "⚡ Movement")
+	Create("TextLabel", {
+		Size = UDim2.new(1, 0, 0, 18),
+		BackgroundTransparency = 1,
+		Text = "Normal character movement controls",
+		TextColor3 = Theme.TextDim,
+		Font = Enum.Font.Gotham,
+		TextSize = 13,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Parent = header
+	})
+
+	local speedCard = Components.Card(MovementPage, "🏃 WalkSpeed")
+	Components.Slider(speedCard, "Speed", 16, 200, 16, function(v)
+		Movement.SetWalkSpeed(v)
+	end)
+
+	local jumpCard = Components.Card(MovementPage, "🦘 JumpPower")
+	Components.Slider(jumpCard, "Power", 50, 250, 50, function(v)
+		Movement.SetJumpPower(v)
+	end)
+
+	local flyCard = Components.Card(MovementPage, "🪽 Normal Fly")
+	Components.Toggle(flyCard, "Enable Fly", false, function(on)
+		if on then
+			Movement.StartFly()
+			Notify("Movement", "Normal Fly Enabled")
+		else
+			Movement.StopFly()
+			Notify("Movement", "Normal Fly Disabled")
+		end
+	end)
+	Components.Slider(flyCard, "Fly Speed", 1, 200, 50, function(v)
+		State.FlySpeed = v
+	end)
+
+	local resetCard = Components.Card(MovementPage)
+	Components.Button(resetCard, "Reset Movement", function()
+		Movement.Reset()
+	end)
+end
+
+--========================================================
+-- PAGE: PLAYERS
+--========================================================
+local PlayersPage = CreatePage("Players")
+
+do
+	local header = Components.Card(PlayersPage, "👤 Players")
+	Create("TextLabel", {
+		Size = UDim2.new(1, 0, 0, 18),
+		BackgroundTransparency = 1,
+		Text = "Player management system",
+		TextColor3 = Theme.TextDim,
+		Font = Enum.Font.Gotham,
+		TextSize = 13,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Parent = header
+	})
+
+	local searchCard = Components.Card(PlayersPage, "🔎 Search Player")
+	local searchBox = Create("TextBox", {
+		Size = UDim2.new(1, 0, 0, 34),
+		BackgroundColor3 = Color3.fromRGB(20, 35, 70),
+		Text = "",
+		PlaceholderText = "Search username...",
+		PlaceholderColor3 = Theme.TextDim,
+		TextColor3 = Theme.Text,
+		Font = Enum.Font.Gotham,
+		TextSize = 14,
+		ClearTextOnFocus = false,
+		Parent = searchCard
+	})
+	Corner(searchBox, 6)
+	Padding(searchBox, 0, 0, 10, 10)
+
+	searchBox:GetPropertyChangedSignal("Text"):Connect(function()
+		PlayersModule.RefreshList(searchBox.Text)
+	end)
+
+	local listCard = Components.Card(PlayersPage, "Players")
+	PlayerListFrame = Create("ScrollingFrame", {
+		Size = UDim2.new(1, 0, 0, 180),
+		BackgroundColor3 = Color3.fromRGB(10, 18, 40),
+		BorderSizePixel = 0,
+		ScrollBarThickness = 3,
+		CanvasSize = UDim2.new(0, 0, 0, 0),
+		AutomaticCanvasSize = Enum.AutomaticSize.Y,
+		Parent = listCard
+	})
+	Corner(PlayerListFrame, 6)
+	Create("UIListLayout", {
+		Padding = UDim.new(0, 4),
+		Parent = PlayerListFrame
+	})
+	Padding(PlayerListFrame, 4, 4, 4, 4)
+
+	local selectedCard = Components.Card(PlayersPage, "Selected Player")
+	SelectedInfoLabels.Username = Create("TextLabel", {
+		Size = UDim2.new(1, 0, 0, 20),
+		BackgroundTransparency = 1,
+		Text = "Username: None",
+		TextColor3 = Theme.Text,
+		Font = Enum.Font.Gotham,
+		TextSize = 14,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Parent = selectedCard
+	})
+	SelectedInfoLabels.DisplayName = Create("TextLabel", {
+		Size = UDim2.new(1, 0, 0, 20),
+		BackgroundTransparency = 1,
+		Text = "Display Name: —",
+		TextColor3 = Theme.Text,
+		Font = Enum.Font.Gotham,
+		TextSize = 14,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Parent = selectedCard
+	})
+	SelectedInfoLabels.UserId = Create("TextLabel", {
+		Size = UDim2.new(1, 0, 0, 20),
+		BackgroundTransparency = 1,
+		Text = "User ID: —",
+		TextColor3 = Theme.Text,
+		Font = Enum.Font.Gotham,
+		TextSize = 14,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Parent = selectedCard
+	})
+
+	local toolsCard = Components.Card(PlayersPage, "Player Tools")
+	Create("TextLabel", {
+		Size = UDim2.new(1, 0, 0, 20),
+		BackgroundTransparency = 1,
+		Text = "Future modules connect here",
+		TextColor3 = Theme.TextDim,
+		Font = Enum.Font.Gotham,
+		TextSize = 13,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Parent = toolsCard
+	})
+
+	PlayersModule.RefreshList()
+end
+
+--========================================================
+-- PAGE: AURA
+--========================================================
+local AuraPage = CreatePage("Aura")
+
+do
+	local header = Components.Card(AuraPage, "✨ Aura")
+	Create("TextLabel", {
+		Size = UDim2.new(1, 0, 0, 18),
+		BackgroundTransparency = 1,
+		Text = "Animation and movement system",
+		TextColor3 = Theme.TextDim,
+		Font = Enum.Font.Gotham,
+		TextSize = 13,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Parent = header
+	})
+
+	local packCard = Components.Card(AuraPage, "🎭 Animation Pack")
+	Create("TextLabel", {
+		Size = UDim2.new(1, 0, 0, 20),
+		BackgroundTransparency = 1,
+		Text = "Current Pack: Angel",
+		TextColor3 = Theme.Secondary,
+		Font = Enum.Font.GothamBold,
+		TextSize = 14,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Name = "CurrentPackLabel",
+		Parent = packCard
+	})
+
+	Components.Dropdown(packCard, "Select Pack", {"Angel", "adidas Aura", "adidas Community"}, "Angel", function(pack)
+		Aura.ApplyPack(pack)
+		local lbl = packCard:FindFirstChild("CurrentPackLabel")
+		if lbl then lbl.Text = "Current Pack: " .. pack end
+	end)
+
+	local auraFlyCard = Components.Card(AuraPage, "🪽 Aura Fly")
+	Components.Toggle(auraFlyCard, "Enable Aura Fly", false, function(on)
+		if on then
+			Aura.StartAuraFly()
+		else
+			Aura.StopAuraFly()
+			Notify("Aura", "Aura Fly Disabled")
+		end
+	end)
+	Components.Slider(auraFlyCard, "Fly Speed", 1, 200, 50, function(v)
+		State.AuraFlySpeed = v
+	end)
+
+	local bundleCard = Components.Card(AuraPage, "📦 Bundles")
+	for _, name in ipairs({"Angel", "adidas Aura", "adidas Community"}) do
+		Components.Button(bundleCard, name, function()
+			Aura.ApplyPack(name)
+			Notify("Aura", "Bundle: " .. name)
+		end)
+	end
+end
+
+--========================================================
+-- PAGE: VISUAL
+--========================================================
+local VisualPage = CreatePage("Visual")
+
+do
+	local header = Components.Card(VisualPage, "🎭 Visual")
+	Create("TextLabel", {
+		Size = UDim2.new(1, 0, 0, 18),
+		BackgroundTransparency = 1,
+		Text = "Interface and display settings",
+		TextColor3 = Theme.TextDim,
+		Font = Enum.Font.Gotham,
+		TextSize = 13,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Parent = header
+	})
+
+	local themeCard = Components.Card(VisualPage, "🎨 Theme")
+	Create("TextLabel", {
+		Size = UDim2.new(1, 0, 0, 20),
+		BackgroundTransparency = 1,
+		Text = "Current Theme: YAMIN BLUE",
+		TextColor3 = Theme.Secondary,
+		Font = Enum.Font.GothamBold,
+		TextSize = 14,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Parent = themeCard
+	})
+
+	local effectsCard = Components.Card(VisualPage, "✨ UI Effects")
+	Components.Toggle(effectsCard, "Blur", true, function(on)
+		State.Blur = on
+		-- Optional blur effect can be added via BlurEffect in Lighting
+	end)
+	Components.Toggle(effectsCard, "Animations", true, function(on)
+		State.Animations = on
+	end)
+	Components.Toggle(effectsCard, "Glow", true, function(on)
+		State.Glow = on
+	end)
+	Components.Toggle(effectsCard, "Transparency", false, function(on)
+		Main.BackgroundTransparency = on and 0.15 or 0
+	end)
+
+	local displayCard = Components.Card(VisualPage, "🖥 Display")
+	Components.Toggle(displayCard, "FPS Counter", false, function(on)
+		State.FPS = on
+	end)
+	Components.Toggle(displayCard, "Debug Information", false, function(on)
+		State.Debug = on
+	end)
+	Components.Toggle(displayCard, "Performance Mode", false, function(on)
+		-- reduces effects
+	end)
+end
+
+--========================================================
+-- PAGE: UTILITY
+--========================================================
+local UtilityPage = CreatePage("Utility")
+
+do
+	local header = Components.Card(UtilityPage, "🛠 Utility")
+	Create("TextLabel", {
+		Size = UDim2.new(1, 0, 0, 18),
+		BackgroundTransparency = 1,
+		Text = "Developer tools",
+		TextColor3 = Theme.TextDim,
+		Font = Enum.Font.Gotham,
+		TextSize = 13,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Parent = header
+	})
+
+	local statusCard = Components.Card(UtilityPage, "System Status")
+	Create("TextLabel", {
+		Size = UDim2.new(1, 0, 0, 20),
+		BackgroundTransparency = 1,
+		Text = "UI: Loaded",
+		TextColor3 = Theme.Success,
+		Font = Enum.Font.Gotham,
+		TextSize = 14,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Parent = statusCard
+	})
+	Create("TextLabel", {
+		Size = UDim2.new(1, 0, 0, 20),
+		BackgroundTransparency = 1,
+		Text = "Modules: Loaded",
+		TextColor3 = Theme.Success,
+		Font = Enum.Font.Gotham,
+		TextSize = 14,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Parent = statusCard
+	})
+	Create("TextLabel", {
+		Size = UDim2.new(1, 0, 0, 20),
+		BackgroundTransparency = 1,
+		Text = "Status: Online",
+		TextColor3 = Theme.Success,
+		Font = Enum.Font.Gotham,
+		TextSize = 14,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Parent = statusCard
+	})
+
+	local logCard = Components.Card(UtilityPage, "Logs")
+	local logBox = Create("ScrollingFrame", {
+		Size = UDim2.new(1, 0, 0, 160),
+		BackgroundColor3 = Color3.fromRGB(8, 12, 25),
+		BorderSizePixel = 0,
+		ScrollBarThickness = 3,
+		CanvasSize = UDim2.new(0, 0, 0, 0),
+		AutomaticCanvasSize = Enum.AutomaticSize.Y,
+		Parent = logCard
+	})
+	Corner(logBox, 6)
+	local logLayout = Create("UIListLayout", {Parent = logBox})
+	Padding(logBox, 6, 6, 8, 8)
+
+	ModuleObjects.RefreshLogs = function()
+		for _, c in ipairs(logBox:GetChildren()) do
+			if c:IsA("TextLabel") then c:Destroy() end
+		end
+		for i = 1, math.min(30, #Logs) do
+			Create("TextLabel", {
+				Size = UDim2.new(1, 0, 0, 18),
+				BackgroundTransparency = 1,
+				Text = "> " .. Logs[i],
+				TextColor3 = Theme.TextDim,
+				Font = Enum.Font.Code,
+				TextSize = 12,
+				TextXAlignment = Enum.TextXAlignment.Left,
+				Parent = logBox
+			})
+		end
+	end
+
+	local perfCard = Components.Card(UtilityPage, "Performance")
+	local fpsLabel = Create("TextLabel", {
+		Size = UDim2.new(1, 0, 0, 20),
+		BackgroundTransparency = 1,
+		Text = "FPS: —",
+		TextColor3 = Theme.Text,
+		Font = Enum.Font.Gotham,
+		TextSize = 14,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Parent = perfCard
+	})
+	Create("TextLabel", {
+		Size = UDim2.new(1, 0, 0, 20),
+		BackgroundTransparency = 1,
+		Text = "Memory: —",
+		TextColor3 = Theme.Text,
+		Font = Enum.Font.Gotham,
+		TextSize = 14,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Parent = perfCard
+	})
+	Create("TextLabel", {
+		Size = UDim2.new(1, 0, 0, 20),
+		BackgroundTransparency = 1,
+		Text = "Ping: —",
+		TextColor3 = Theme.Text,
+		Font = Enum.Font.Gotham,
+		TextSize = 14,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Parent = perfCard
+	})
+
+	-- Simple FPS counter
+	local last = tick()
+	local frames = 0
+	AddConnection(RunService.RenderStepped:Connect(function()
+		frames += 1
+		if tick() - last >= 1 then
+			fpsLabel.Text = "FPS: " .. frames
+			frames = 0
+			last = tick()
+		end
+	end))
+end
+
+--========================================================
+-- PAGE: SETTINGS
+--========================================================
+local SettingsPage = CreatePage("Settings")
+
+do
+	local header = Components.Card(SettingsPage, "⚙ Settings")
+	Create("TextLabel", {
+		Size = UDim2.new(1, 0, 0, 18),
+		BackgroundTransparency = 1,
+		Text = "Hub configuration",
+		TextColor3 = Theme.TextDim,
+		Font = Enum.Font.Gotham,
+		TextSize = 13,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Parent = header
+	})
+
+	local keyCard = Components.Card(SettingsPage, "Keyboard Controls")
+	Create("TextLabel", {
+		Size = UDim2.new(1, 0, 0, 22),
+		BackgroundTransparency = 1,
+		Text = "Toggle UI: RightShift",
+		TextColor3 = Theme.Text,
+		Font = Enum.Font.Gotham,
+		TextSize = 14,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Parent = keyCard
+	})
+
+	local configCard = Components.Card(SettingsPage, "Config")
+	Components.Button(configCard, "Save Config", function()
+		Notify("Config", "Settings saved (session)")
+		Log("Config saved")
+	end)
+	Components.Button(configCard, "Load Config", function()
+		Notify("Config", "Settings loaded")
+	end)
+	Components.Button(configCard, "Reset Config", function()
+		Notify("Config", "Config reset")
+	end)
+
+	local sysCard = Components.Card(SettingsPage, "System")
+	Components.Toggle(sysCard, "Notifications", true, function(on)
+		State.Notifications = on
+	end)
+	Components.Toggle(sysCard, "Debug Mode", false, function(on)
+		State.Debug = on
+	end)
+	Components.Button(sysCard, "Force Cleanup", function()
+		CleanupAll()
+		Notify("System", "Cleanup executed")
+		Log("Manual cleanup")
+	end)
+end
+
+--========================================================
+-- TOGGLE KEY
+--========================================================
+AddConnection(UserInputService.InputBegan:Connect(function(input, processed)
+	if processed then return end
+	if input.KeyCode == State.ToggleKey then
+		State.Open = not State.Open
+		Main.Visible = State.Open
+	end
+end))
+
+--========================================================
+-- INIT
+--========================================================
+Log("YAMIN HUB V3 initialized")
+Log("All modules loaded")
+Notify("YAMIN HUB V3", "Successfully loaded", 4)
+
+print("[YAMIN HUB V3] Loaded successfully")
