@@ -1,0 +1,2 @@
+# coolscript
+idk
