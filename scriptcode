@@ -1,12 +1,14 @@
---// YAMIN HUB - PART 1
---// Core GUI / Framework
+--[[
+    Yamin HUB
+    Part 1 - Core UI Foundation
+    Version: v2.0
+]]
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
 local Player = Players.LocalPlayer
-local PlayerGui = Player:WaitForChild("PlayerGui")
 
 --==================================================
 -- CONFIG
@@ -16,343 +18,504 @@ local Config = {
     Name = "Yamin HUB",
     ToggleKey = Enum.KeyCode.RightShift,
 
-    Size = UDim2.fromOffset(900, 600),
-    MinSize = Vector2.new(700, 450),
+    Size = UDim2.fromOffset(920, 600),
+    MinimumSize = Vector2.new(760, 500),
 
-    Background = Color3.fromRGB(16, 16, 22),
-    Secondary = Color3.fromRGB(22, 22, 30),
-    Card = Color3.fromRGB(27, 27, 37),
-    Accent = Color3.fromRGB(125, 75, 255),
-    AccentDark = Color3.fromRGB(95, 50, 210),
-    Text = Color3.fromRGB(245, 245, 250),
-    SubText = Color3.fromRGB(160, 160, 175),
-    Border = Color3.fromRGB(45, 45, 58),
+    Colors = {
+        Background = Color3.fromRGB(15, 15, 18),
+        TopBar = Color3.fromRGB(20, 20, 24),
+        Sidebar = Color3.fromRGB(18, 18, 22),
+        Card = Color3.fromRGB(24, 24, 29),
+        CardHover = Color3.fromRGB(31, 31, 38),
+
+        Text = Color3.fromRGB(245, 245, 248),
+        SubText = Color3.fromRGB(155, 155, 165),
+
+        Accent = Color3.fromRGB(125, 85, 255),
+        AccentDark = Color3.fromRGB(90, 55, 200),
+
+        Divider = Color3.fromRGB(40, 40, 46),
+    }
 }
 
 --==================================================
--- CLEAN OLD GUI
+-- SERVICES
 --==================================================
 
-local OldGui = PlayerGui:FindFirstChild("YaminHUB")
+local function Create(className, properties)
+    local object = Instance.new(className)
 
-if OldGui then
-    OldGui:Destroy()
+    for property, value in pairs(properties or {}) do
+        object[property] = value
+    end
+
+    return object
 end
 
 --==================================================
 -- SCREEN GUI
 --==================================================
 
-local Gui = Instance.new("ScreenGui")
-Gui.Name = "YaminHUB"
-Gui.ResetOnSpawn = false
-Gui.IgnoreGuiInset = true
-Gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-Gui.Parent = PlayerGui
+local ScreenGui = Create("ScreenGui", {
+    Name = "YaminHUB",
+    ResetOnSpawn = false,
+    IgnoreGuiInset = true,
+    ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+    Parent = Player:WaitForChild("PlayerGui")
+})
 
 --==================================================
--- UTILITY
+-- HELPERS
 --==================================================
 
-local function Corner(Object, Radius)
-    local Corner = Instance.new("UICorner")
-    Corner.CornerRadius = UDim.new(0, Radius or 8)
-    Corner.Parent = Object
-    return Corner
+local function Corner(object, radius)
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, radius or 8)
+    corner.Parent = object
+
+    return corner
 end
 
-local function Stroke(Object, Color, Thickness, Transparency)
-    local S = Instance.new("UIStroke")
-    S.Color = Color or Config.Border
-    S.Thickness = Thickness or 1
-    S.Transparency = Transparency or 0
-    S.Parent = Object
-    return S
+local function Stroke(object, color, thickness, transparency)
+    local stroke = Instance.new("UIStroke")
+
+    stroke.Color = color or Config.Colors.Divider
+    stroke.Thickness = thickness or 1
+    stroke.Transparency = transparency or 0
+
+    stroke.Parent = object
+
+    return stroke
 end
 
-local function Padding(Object, Amount)
-    local P = Instance.new("UIPadding")
-    P.PaddingTop = UDim.new(0, Amount)
-    P.PaddingBottom = UDim.new(0, Amount)
-    P.PaddingLeft = UDim.new(0, Amount)
-    P.PaddingRight = UDim.new(0, Amount)
-    P.Parent = Object
-    return P
+local function Padding(object, amount)
+    local padding = Instance.new("UIPadding")
+
+    padding.PaddingTop = UDim.new(0, amount)
+    padding.PaddingBottom = UDim.new(0, amount)
+    padding.PaddingLeft = UDim.new(0, amount)
+    padding.PaddingRight = UDim.new(0, amount)
+
+    padding.Parent = object
+
+    return padding
 end
 
-local function Tween(Object, Time, Properties)
-    return TweenService:Create(
-        Object,
-        TweenInfo.new(Time, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
-        Properties
+local function Tween(object, properties, duration)
+    local tween = TweenService:Create(
+        object,
+        TweenInfo.new(
+            duration or 0.2,
+            Enum.EasingStyle.Quint,
+            Enum.EasingDirection.Out
+        ),
+        properties
     )
+
+    tween:Play()
+
+    return tween
 end
 
 --==================================================
 -- MAIN WINDOW
 --==================================================
 
-local Main = Instance.new("Frame")
-Main.Name = "Main"
-Main.Size = Config.Size
-Main.Position = UDim2.fromScale(0.5, 0.5)
-Main.AnchorPoint = Vector2.new(0.5, 0.5)
-Main.BackgroundColor3 = Config.Background
-Main.BorderSizePixel = 0
-Main.Parent = Gui
+local Main = Create("Frame", {
+    Name = "Main",
+    Parent = ScreenGui,
+
+    Size = Config.Size,
+    Position = UDim2.fromScale(0.5, 0.5),
+    AnchorPoint = Vector2.new(0.5, 0.5),
+
+    BackgroundColor3 = Config.Colors.Background,
+    BorderSizePixel = 0,
+
+    ClipsDescendants = true,
+})
 
 Corner(Main, 12)
-Stroke(Main, Config.Border, 1)
+Stroke(Main, Config.Colors.Divider, 1)
 
 --==================================================
 -- TOP BAR
 --==================================================
 
-local TopBar = Instance.new("Frame")
-TopBar.Name = "TopBar"
-TopBar.Size = UDim2.new(1, 0, 0, 55)
-TopBar.BackgroundColor3 = Config.Secondary
-TopBar.BorderSizePixel = 0
-TopBar.Parent = Main
+local TopBar = Create("Frame", {
+    Name = "TopBar",
+    Parent = Main,
 
-Corner(TopBar, 12)
+    Size = UDim2.new(1, 0, 0, 58),
 
--- Cover bottom rounded corners
-local TopBarCover = Instance.new("Frame")
-TopBarCover.Size = UDim2.new(1, 0, 0, 15)
-TopBarCover.Position = UDim2.new(0, 0, 1, -15)
-TopBarCover.BackgroundColor3 = Config.Secondary
-TopBarCover.BorderSizePixel = 0
-TopBarCover.Parent = TopBar
+    BackgroundColor3 = Config.Colors.TopBar,
+    BorderSizePixel = 0,
+})
 
--- Accent line
-local AccentLine = Instance.new("Frame")
-AccentLine.Size = UDim2.new(1, 0, 0, 2)
-AccentLine.Position = UDim2.new(0, 0, 1, -2)
-AccentLine.BackgroundColor3 = Config.Accent
-AccentLine.BorderSizePixel = 0
-AccentLine.Parent = TopBar
+local Logo = Create("TextLabel", {
+    Name = "Logo",
+    Parent = TopBar,
 
---==================================================
--- TITLE
---==================================================
+    Position = UDim2.fromOffset(20, 0),
+    Size = UDim2.fromOffset(38, 58),
 
-local Title = Instance.new("TextLabel")
-Title.Name = "Title"
-Title.Size = UDim2.new(0, 300, 1, 0)
-Title.Position = UDim2.fromOffset(20, 0)
-Title.BackgroundTransparency = 1
-Title.Text = "⚡  YAMIN HUB"
-Title.TextColor3 = Config.Text
-Title.TextSize = 20
-Title.Font = Enum.Font.GothamBold
-Title.TextXAlignment = Enum.TextXAlignment.Left
-Title.Parent = TopBar
+    BackgroundTransparency = 1,
 
-local Version = Instance.new("TextLabel")
-Version.Size = UDim2.fromOffset(100, 20)
-Version.Position = UDim2.fromOffset(20, 34)
-Version.BackgroundTransparency = 1
-Version.Text = "v1.0"
-Version.TextColor3 = Config.SubText
-Version.TextSize = 11
-Version.Font = Enum.Font.Gotham
-Version.TextXAlignment = Enum.TextXAlignment.Left
-Version.Parent = TopBar
+    Text = "⚡",
+    TextColor3 = Config.Colors.Accent,
 
---==================================================
--- CLOSE BUTTON
---==================================================
+    Font = Enum.Font.GothamBold,
+    TextSize = 23,
+})
 
-local Close = Instance.new("TextButton")
-Close.Name = "Close"
-Close.Size = UDim2.fromOffset(35, 35)
-Close.Position = UDim2.new(1, -45, 0, 10)
-Close.BackgroundColor3 = Color3.fromRGB(180, 55, 65)
-Close.Text = "×"
-Close.TextColor3 = Config.Text
-Close.TextSize = 24
-Close.Font = Enum.Font.GothamBold
-Close.AutoButtonColor = false
-Close.Parent = TopBar
+local Title = Create("TextLabel", {
+    Name = "Title",
+    Parent = TopBar,
 
-Corner(Close, 8)
+    Position = UDim2.fromOffset(58, 8),
+    Size = UDim2.fromOffset(250, 25),
 
-Close.MouseEnter:Connect(function()
-    Tween(Close, 0.15, {
-        BackgroundColor3 = Color3.fromRGB(220, 65, 75)
-    }):Play()
+    BackgroundTransparency = 1,
+
+    Text = Config.Name,
+    TextColor3 = Config.Colors.Text,
+
+    Font = Enum.Font.GothamBold,
+    TextSize = 18,
+
+    TextXAlignment = Enum.TextXAlignment.Left,
+})
+
+local Version = Create("TextLabel", {
+    Name = "Version",
+    Parent = TopBar,
+
+    Position = UDim2.fromOffset(58, 31),
+    Size = UDim2.fromOffset(100, 18),
+
+    BackgroundTransparency = 1,
+
+    Text = "v2.0",
+
+    TextColor3 = Config.Colors.SubText,
+
+    Font = Enum.Font.Gotham,
+    TextSize = 11,
+
+    TextXAlignment = Enum.TextXAlignment.Left,
+})
+
+-- Online status
+
+local StatusDot = Create("Frame", {
+    Name = "StatusDot",
+    Parent = TopBar,
+
+    Position = UDim2.new(1, -145, 0.5, -4),
+    Size = UDim2.fromOffset(8, 8),
+
+    BackgroundColor3 = Color3.fromRGB(80, 220, 130),
+    BorderSizePixel = 0,
+})
+
+Corner(StatusDot, 50)
+
+local Status = Create("TextLabel", {
+    Name = "Status",
+    Parent = TopBar,
+
+    Position = UDim2.new(1, -130, 0.5, -10),
+    Size = UDim2.fromOffset(80, 20),
+
+    BackgroundTransparency = 1,
+
+    Text = "ONLINE",
+    TextColor3 = Config.Colors.SubText,
+
+    Font = Enum.Font.GothamMedium,
+    TextSize = 10,
+
+    TextXAlignment = Enum.TextXAlignment.Left,
+})
+
+-- Close button
+
+local CloseButton = Create("TextButton", {
+    Name = "Close",
+    Parent = TopBar,
+
+    Position = UDim2.new(1, -48, 0.5, -18),
+    Size = UDim2.fromOffset(36, 36),
+
+    BackgroundColor3 = Config.Colors.Card,
+    BorderSizePixel = 0,
+
+    Text = "×",
+    TextColor3 = Config.Colors.SubText,
+
+    Font = Enum.Font.GothamBold,
+    TextSize = 22,
+
+    AutoButtonColor = false,
+})
+
+Corner(CloseButton, 8)
+
+CloseButton.MouseEnter:Connect(function()
+    Tween(CloseButton, {
+        BackgroundColor3 = Color3.fromRGB(45, 30, 35),
+        TextColor3 = Color3.fromRGB(255, 100, 110)
+    })
 end)
 
-Close.MouseLeave:Connect(function()
-    Tween(Close, 0.15, {
-        BackgroundColor3 = Color3.fromRGB(180, 55, 65)
-    }):Play()
+CloseButton.MouseLeave:Connect(function()
+    Tween(CloseButton, {
+        BackgroundColor3 = Config.Colors.Card,
+        TextColor3 = Config.Colors.SubText
+    })
 end)
 
-Close.MouseButton1Click:Connect(function()
-    Gui.Enabled = false
+CloseButton.MouseButton1Click:Connect(function()
+    ScreenGui.Enabled = false
+end)
+
+--==================================================
+-- DRAGGING
+--==================================================
+
+local dragging = false
+local dragStart
+local startPosition
+
+TopBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPosition = Main.Position
+
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local delta = input.Position - dragStart
+
+        Main.Position = UDim2.new(
+            startPosition.X.Scale,
+            startPosition.X.Offset + delta.X,
+            startPosition.Y.Scale,
+            startPosition.Y.Offset + delta.Y
+        )
+    end
 end)
 
 --==================================================
 -- SIDEBAR
 --==================================================
 
-local Sidebar = Instance.new("Frame")
-Sidebar.Name = "Sidebar"
-Sidebar.Size = UDim2.new(0, 190, 1, -55)
-Sidebar.Position = UDim2.fromOffset(0, 55)
-Sidebar.BackgroundColor3 = Config.Secondary
-Sidebar.BorderSizePixel = 0
-Sidebar.Parent = Main
+local Sidebar = Create("Frame", {
+    Name = "Sidebar",
+    Parent = Main,
 
-local SidebarPadding = Padding(Sidebar, 12)
+    Position = UDim2.fromOffset(0, 58),
+    Size = UDim2.new(0, 190, 1, -58),
 
-local SidebarList = Instance.new("UIListLayout")
-SidebarList.Padding = UDim.new(0, 6)
-SidebarList.SortOrder = Enum.SortOrder.LayoutOrder
-SidebarList.Parent = Sidebar
+    BackgroundColor3 = Config.Colors.Sidebar,
+    BorderSizePixel = 0,
+})
 
---==================================================
--- CONTENT
---==================================================
+local SidebarTitle = Create("TextLabel", {
+    Parent = Sidebar,
 
-local Content = Instance.new("Frame")
-Content.Name = "Content"
-Content.Size = UDim2.new(1, -190, 1, -55)
-Content.Position = UDim2.fromOffset(190, 55)
-Content.BackgroundColor3 = Config.Background
-Content.BorderSizePixel = 0
-Content.Parent = Main
+    Position = UDim2.fromOffset(18, 18),
+    Size = UDim2.new(1, -36, 0, 20),
 
-local ContentPadding = Padding(Content, 18)
+    BackgroundTransparency = 1,
 
---==================================================
--- SECTION TITLE
---==================================================
+    Text = "CONTROL PANEL",
+    TextColor3 = Config.Colors.SubText,
 
-local SectionTitle = Instance.new("TextLabel")
-SectionTitle.Name = "SectionTitle"
-SectionTitle.Size = UDim2.new(1, 0, 0, 35)
-SectionTitle.BackgroundTransparency = 1
-SectionTitle.Text = "Dashboard"
-SectionTitle.TextColor3 = Config.Text
-SectionTitle.TextSize = 22
-SectionTitle.Font = Enum.Font.GothamBold
-SectionTitle.TextXAlignment = Enum.TextXAlignment.Left
-SectionTitle.Parent = Content
+    Font = Enum.Font.GothamBold,
+    TextSize = 10,
 
---==================================================
--- CONTENT SCROLLER
---==================================================
+    TextXAlignment = Enum.TextXAlignment.Left,
+})
 
-local Scroller = Instance.new("ScrollingFrame")
-Scroller.Name = "Scroller"
-Scroller.Size = UDim2.new(1, 0, 1, -45)
-Scroller.Position = UDim2.fromOffset(0, 45)
-Scroller.BackgroundTransparency = 1
-Scroller.BorderSizePixel = 0
-Scroller.ScrollBarThickness = 4
-Scroller.ScrollBarImageColor3 = Config.Accent
-Scroller.CanvasSize = UDim2.new(0, 0, 0, 0)
-Scroller.AutomaticCanvasSize = Enum.AutomaticSize.Y
-Scroller.Parent = Content
+local SidebarScroller = Create("ScrollingFrame", {
+    Name = "Sections",
+    Parent = Sidebar,
 
-local ScrollerPadding = Padding(Scroller, 2)
+    Position = UDim2.fromOffset(10, 48),
+    Size = UDim2.new(1, -20, 1, -58),
 
-local ContentList = Instance.new("UIListLayout")
-ContentList.Padding = UDim.new(0, 10)
-ContentList.SortOrder = Enum.SortOrder.LayoutOrder
-ContentList.Parent = Scroller
+    BackgroundTransparency = 1,
+
+    BorderSizePixel = 0,
+
+    ScrollBarThickness = 2,
+    ScrollBarImageColor3 = Config.Colors.Accent,
+
+    AutomaticCanvasSize = Enum.AutomaticSize.Y,
+    CanvasSize = UDim2.new(),
+
+    ScrollingDirection = Enum.ScrollingDirection.Y,
+})
+
+local SidebarLayout = Create("UIListLayout", {
+    Parent = SidebarScroller,
+
+    SortOrder = Enum.SortOrder.LayoutOrder,
+    Padding = UDim.new(0, 5),
+})
 
 --==================================================
--- SECTION DATA
+-- CONTENT AREA
 --==================================================
 
-local Sections = {
-    {
-        Name = "Movement",
-        Icon = "🏃",
-    },
-    {
-        Name = "Troll",
-        Icon = "😈",
-    },
-    {
-        Name = "Aura",
-        Icon = "✨",
-    },
-    {
-        Name = "Animations",
-        Icon = "🪽",
-    },
-    {
-        Name = "Character",
-        Icon = "🎭",
-    },
-    {
-        Name = "Camera",
-        Icon = "🎥",
-    },
-    {
-        Name = "Settings",
-        Icon = "⚙",
-    },
-}
+local ContentArea = Create("Frame", {
+    Name = "ContentArea",
+    Parent = Main,
 
-local SectionButtons = {}
-local CurrentSection = nil
+    Position = UDim2.fromOffset(190, 58),
+    Size = UDim2.new(1, -190, 1, -58),
+
+    BackgroundColor3 = Config.Colors.Background,
+    BorderSizePixel = 0,
+})
+
+-- Header
+
+local SectionHeader = Create("Frame", {
+    Name = "SectionHeader",
+    Parent = ContentArea,
+
+    Position = UDim2.fromOffset(25, 20),
+    Size = UDim2.new(1, -50, 0, 65),
+
+    BackgroundTransparency = 1,
+})
+
+local SectionTitle = Create("TextLabel", {
+    Name = "Title",
+    Parent = SectionHeader,
+
+    Size = UDim2.new(1, 0, 0, 30),
+
+    BackgroundTransparency = 1,
+
+    Text = "Movement",
+    TextColor3 = Config.Colors.Text,
+
+    Font = Enum.Font.GothamBold,
+    TextSize = 22,
+
+    TextXAlignment = Enum.TextXAlignment.Left,
+})
+
+local SectionDescription = Create("TextLabel", {
+    Name = "Description",
+    Parent = SectionHeader,
+
+    Position = UDim2.fromOffset(0, 32),
+    Size = UDim2.new(1, 0, 0, 25),
+
+    BackgroundTransparency = 1,
+
+    Text = "Control your movement and character.",
+
+    TextColor3 = Config.Colors.SubText,
+
+    Font = Enum.Font.Gotham,
+    TextSize = 12,
+
+    TextXAlignment = Enum.TextXAlignment.Left,
+})
+
+-- Content scrolling area
+
+local Scroller = Create("ScrollingFrame", {
+    Name = "Scroller",
+    Parent = ContentArea,
+
+    Position = UDim2.fromOffset(25, 95),
+    Size = UDim2.new(1, -50, 1, -120),
+
+    BackgroundTransparency = 1,
+
+    BorderSizePixel = 0,
+
+    ScrollBarThickness = 3,
+    ScrollBarImageColor3 = Config.Colors.Accent,
+
+    AutomaticCanvasSize = Enum.AutomaticSize.Y,
+    CanvasSize = UDim2.new(),
+
+    ScrollingDirection = Enum.ScrollingDirection.Y,
+})
+
+local ContentLayout = Create("UIListLayout", {
+    Parent = Scroller,
+
+    SortOrder = Enum.SortOrder.LayoutOrder,
+    Padding = UDim.new(0, 10),
+})
 
 --==================================================
--- CLEAR CONTENT
+-- CARD SYSTEM
 --==================================================
 
-local function ClearContent()
-    for _, Object in ipairs(Scroller:GetChildren()) do
-        if not Object:IsA("UIListLayout")
-            and not Object:IsA("UIPadding") then
-            Object:Destroy()
-        end
-    end
-end
+local function CreateCard(parent, title, description)
+    local Card = Create("Frame", {
+        Parent = parent,
 
---==================================================
--- CARD
---==================================================
+        Size = UDim2.new(1, 0, 0, 72),
 
-local function CreateCard(Name, Description)
-    local Card = Instance.new("Frame")
-    Card.Name = Name .. "Card"
-    Card.Size = UDim2.new(1, -4, 0, 75)
-    Card.BackgroundColor3 = Config.Card
-    Card.BorderSizePixel = 0
-    Card.Parent = Scroller
+        BackgroundColor3 = Config.Colors.Card,
+        BorderSizePixel = 0,
+    })
 
     Corner(Card, 9)
-    Stroke(Card, Config.Border, 1)
 
-    local CardTitle = Instance.new("TextLabel")
-    CardTitle.Size = UDim2.new(1, -25, 0, 25)
-    CardTitle.Position = UDim2.fromOffset(14, 9)
-    CardTitle.BackgroundTransparency = 1
-    CardTitle.Text = Name
-    CardTitle.TextColor3 = Config.Text
-    CardTitle.TextSize = 15
-    CardTitle.Font = Enum.Font.GothamBold
-    CardTitle.TextXAlignment = Enum.TextXAlignment.Left
-    CardTitle.Parent = Card
+    local CardTitle = Create("TextLabel", {
+        Parent = Card,
 
-    if Description then
-        local Desc = Instance.new("TextLabel")
-        Desc.Size = UDim2.new(1, -25, 0, 25)
-        Desc.Position = UDim2.fromOffset(14, 34)
-        Desc.BackgroundTransparency = 1
-        Desc.Text = Description
-        Desc.TextColor3 = Config.SubText
-        Desc.TextSize = 12
-        Desc.Font = Enum.Font.Gotham
-        Desc.TextXAlignment = Enum.TextXAlignment.Left
-        Desc.Parent = Card
+        Position = UDim2.fromOffset(15, 12),
+        Size = UDim2.new(1, -30, 0, 22),
+
+        BackgroundTransparency = 1,
+
+        Text = title,
+        TextColor3 = Config.Colors.Text,
+
+        Font = Enum.Font.GothamMedium,
+        TextSize = 13,
+
+        TextXAlignment = Enum.TextXAlignment.Left,
+    })
+
+    if description then
+        local CardDescription = Create("TextLabel", {
+            Parent = Card,
+
+            Position = UDim2.fromOffset(15, 36),
+            Size = UDim2.new(1, -30, 0, 20),
+
+            BackgroundTransparency = 1,
+
+            Text = description,
+
+            TextColor3 = Config.Colors.SubText,
+
+            Font = Enum.Font.Gotham,
+            TextSize = 11,
+
+            TextXAlignment = Enum.TextXAlignment.Left,
+        })
     end
 
     return Card
@@ -362,36 +525,42 @@ end
 -- BUTTON
 --==================================================
 
-local function CreateButton(Card, Text, Callback)
-    local Button = Instance.new("TextButton")
-    Button.Name = Text
-    Button.Size = UDim2.fromOffset(130, 34)
-    Button.Position = UDim2.new(1, -145, 0.5, -17)
-    Button.BackgroundColor3 = Config.Accent
-    Button.Text = Text
-    Button.TextColor3 = Config.Text
-    Button.TextSize = 12
-    Button.Font = Enum.Font.GothamBold
-    Button.AutoButtonColor = false
-    Button.Parent = Card
+local function CreateButton(parent, text, callback)
+    local Button = Create("TextButton", {
+        Parent = parent,
 
-    Corner(Button, 7)
+        Size = UDim2.new(1, 0, 0, 48),
+
+        BackgroundColor3 = Config.Colors.Card,
+        BorderSizePixel = 0,
+
+        Text = text,
+
+        TextColor3 = Config.Colors.Text,
+
+        Font = Enum.Font.GothamMedium,
+        TextSize = 12,
+
+        AutoButtonColor = false,
+    })
+
+    Corner(Button, 8)
 
     Button.MouseEnter:Connect(function()
-        Tween(Button, 0.12, {
-            BackgroundColor3 = Config.AccentDark
-        }):Play()
+        Tween(Button, {
+            BackgroundColor3 = Config.Colors.CardHover
+        }, 0.15)
     end)
 
     Button.MouseLeave:Connect(function()
-        Tween(Button, 0.12, {
-            BackgroundColor3 = Config.Accent
-        }):Play()
+        Tween(Button, {
+            BackgroundColor3 = Config.Colors.Card
+        }, 0.15)
     end)
 
     Button.MouseButton1Click:Connect(function()
-        if Callback then
-            Callback()
+        if callback then
+            callback()
         end
     end)
 
@@ -402,368 +571,483 @@ end
 -- TOGGLE
 --==================================================
 
-local function CreateToggle(Card, Text, Callback)
-    local Enabled = false
+local function CreateToggle(parent, text, default, callback)
+    local Button = Create("TextButton", {
+        Parent = parent,
 
-    local Button = Instance.new("TextButton")
-    Button.Name = Text
-    Button.Size = UDim2.fromOffset(130, 34)
-    Button.Position = UDim2.new(1, -145, 0.5, -17)
-    Button.BackgroundColor3 = Color3.fromRGB(55, 55, 68)
-    Button.Text = "OFF"
-    Button.TextColor3 = Config.Text
-    Button.TextSize = 12
-    Button.Font = Enum.Font.GothamBold
-    Button.AutoButtonColor = false
-    Button.Parent = Card
+        Size = UDim2.new(1, 0, 0, 48),
 
-    Corner(Button, 7)
+        BackgroundColor3 = Config.Colors.Card,
+        BorderSizePixel = 0,
+
+        Text = "",
+
+        AutoButtonColor = false,
+    })
+
+    Corner(Button, 8)
+
+    local Label = Create("TextLabel", {
+        Parent = Button,
+
+        Position = UDim2.fromOffset(15, 0),
+        Size = UDim2.new(1, -80, 1, 0),
+
+        BackgroundTransparency = 1,
+
+        Text = text,
+
+        TextColor3 = Config.Colors.Text,
+
+        Font = Enum.Font.GothamMedium,
+        TextSize = 12,
+
+        TextXAlignment = Enum.TextXAlignment.Left,
+    })
+
+    local ToggleBackground = Create("Frame", {
+        Parent = Button,
+
+        Position = UDim2.new(1, -55, 0.5, -10),
+        Size = UDim2.fromOffset(40, 20),
+
+        BackgroundColor3 = Color3.fromRGB(45, 45, 50),
+        BorderSizePixel = 0,
+    })
+
+    Corner(ToggleBackground, 20)
+
+    local ToggleCircle = Create("Frame", {
+        Parent = ToggleBackground,
+
+        Position = UDim2.fromOffset(3, 3),
+        Size = UDim2.fromOffset(14, 14),
+
+        BackgroundColor3 = Color3.fromRGB(180, 180, 185),
+        BorderSizePixel = 0,
+    })
+
+    Corner(ToggleCircle, 50)
+
+    local enabled = default or false
 
     local function Update()
-        if Enabled then
-            Button.Text = "ON"
-            Button.BackgroundColor3 = Config.Accent
-        else
-            Button.Text = "OFF"
-            Button.BackgroundColor3 = Color3.fromRGB(55, 55, 68)
-        end
+        if enabled then
+            Tween(ToggleBackground, {
+                BackgroundColor3 = Config.Colors.Accent
+            })
 
-        if Callback then
-            Callback(Enabled)
+            Tween(ToggleCircle, {
+                Position = UDim2.new(1, -17, 0, 3),
+                BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            })
+        else
+            Tween(ToggleBackground, {
+                BackgroundColor3 = Color3.fromRGB(45, 45, 50)
+            })
+
+            Tween(ToggleCircle, {
+                Position = UDim2.fromOffset(3, 3),
+                BackgroundColor3 = Color3.fromRGB(180, 180, 185)
+            })
         end
     end
 
-    Button.MouseButton1Click:Connect(function()
-        Enabled = not Enabled
-        Update()
+    Button.MouseEnter:Connect(function()
+        Tween(Button, {
+            BackgroundColor3 = Config.Colors.CardHover
+        }, 0.15)
     end)
 
-    return Button
+    Button.MouseLeave:Connect(function()
+        Tween(Button, {
+            BackgroundColor3 = Config.Colors.Card
+        }, 0.15)
+    end)
+
+    Button.MouseButton1Click:Connect(function()
+        enabled = not enabled
+
+        Update()
+
+        if callback then
+            callback(enabled)
+        end
+    end)
+
+    Update()
+
+    return Button, function()
+        return enabled
+    end
 end
 
 --==================================================
 -- NOTIFICATION
 --==================================================
 
-local NotificationHolder = Instance.new("Frame")
-NotificationHolder.Name = "Notifications"
-NotificationHolder.Size = UDim2.fromOffset(320, 400)
-NotificationHolder.Position = UDim2.new(1, -340, 1, -420)
-NotificationHolder.BackgroundTransparency = 1
-NotificationHolder.Parent = Gui
+local function Notify(title, message)
+    local Notification = Create("Frame", {
+        Parent = ScreenGui,
 
-local NotificationList = Instance.new("UIListLayout")
-NotificationList.VerticalAlignment = Enum.VerticalAlignment.Bottom
-NotificationList.HorizontalAlignment = Enum.HorizontalAlignment.Right
-NotificationList.Padding = UDim.new(0, 8)
-NotificationList.Parent = NotificationHolder
+        AnchorPoint = Vector2.new(1, 1),
 
-local function Notify(Message, Duration)
-    Duration = Duration or 3
+        Position = UDim2.new(1, -20, 1, 100),
 
-    local Notification = Instance.new("Frame")
-    Notification.Size = UDim2.fromOffset(300, 55)
-    Notification.BackgroundColor3 = Config.Card
-    Notification.BorderSizePixel = 0
-    Notification.Parent = NotificationHolder
+        Size = UDim2.fromOffset(300, 75),
 
-    Corner(Notification, 9)
-    Stroke(Notification, Config.Border, 1)
+        BackgroundColor3 = Config.Colors.Card,
+        BorderSizePixel = 0,
 
-    local Line = Instance.new("Frame")
-    Line.Size = UDim2.fromOffset(3, 55)
-    Line.BackgroundColor3 = Config.Accent
-    Line.BorderSizePixel = 0
-    Line.Parent = Notification
+        ZIndex = 100,
+    })
 
-    local Text = Instance.new("TextLabel")
-    Text.Size = UDim2.new(1, -25, 1, 0)
-    Text.Position = UDim2.fromOffset(15, 0)
-    Text.BackgroundTransparency = 1
-    Text.Text = Message
-    Text.TextColor3 = Config.Text
-    Text.TextSize = 13
-    Text.Font = Enum.Font.Gotham
-    Text.TextWrapped = true
-    Text.TextXAlignment = Enum.TextXAlignment.Left
-    Text.Parent = Notification
+    Corner(Notification, 10)
+    Stroke(Notification, Config.Colors.Divider, 1)
 
-    Notification.BackgroundTransparency = 1
-    Text.TextTransparency = 1
-    Line.BackgroundTransparency = 1
+    local NotificationTitle = Create("TextLabel", {
+        Parent = Notification,
 
-    Tween(Notification, 0.25, {
-        BackgroundTransparency = 0
-    }):Play()
+        Position = UDim2.fromOffset(15, 10),
+        Size = UDim2.new(1, -30, 0, 20),
 
-    Tween(Text, 0.25, {
-        TextTransparency = 0
-    }):Play()
+        BackgroundTransparency = 1,
 
-    Tween(Line, 0.25, {
-        BackgroundTransparency = 0
-    }):Play()
+        Text = title,
 
-    task.delay(Duration, function()
-        local Out = Tween(Notification, 0.25, {
-            BackgroundTransparency = 1
-        })
+        TextColor3 = Config.Colors.Text,
 
-        Tween(Text, 0.25, {
-            TextTransparency = 1
-        }):Play()
+        Font = Enum.Font.GothamBold,
+        TextSize = 13,
 
-        Tween(Line, 0.25, {
-            BackgroundTransparency = 1
-        }):Play()
+        TextXAlignment = Enum.TextXAlignment.Left,
 
-        Out:Play()
-        Out.Completed:Wait()
+        ZIndex = 101,
+    })
+
+    local NotificationText = Create("TextLabel", {
+        Parent = Notification,
+
+        Position = UDim2.fromOffset(15, 32),
+        Size = UDim2.new(1, -30, 0, 30),
+
+        BackgroundTransparency = 1,
+
+        Text = message,
+
+        TextColor3 = Config.Colors.SubText,
+
+        Font = Enum.Font.Gotham,
+        TextSize = 11,
+
+        TextWrapped = true,
+        TextXAlignment = Enum.TextXAlignment.Left,
+
+        ZIndex = 101,
+    })
+
+    Tween(Notification, {
+        Position = UDim2.new(1, -20, 1, -20)
+    }, 0.35)
+
+    task.delay(3, function()
+        Tween(Notification, {
+            Position = UDim2.new(1, -20, 1, 100)
+        }, 0.35)
+
+        task.wait(0.4)
 
         Notification:Destroy()
     end)
 end
 
 --==================================================
--- SECTION OPEN SYSTEM
+-- SECTION SYSTEM
 --==================================================
 
+local Sections = {}
+local SectionButtons = {}
 local SectionCallbacks = {}
 
-local function RegisterSection(Name, Callback)
-    SectionCallbacks[Name] = Callback
+local SectionData = {
+    {
+        Name = "Movement",
+        Icon = "⚡",
+        Description = "Control your movement and character."
+    },
+
+    {
+        Name = "Troll",
+        Icon = "☠",
+        Description = "Fun player interactions and target controls."
+    },
+
+    {
+        Name = "Aura",
+        Icon = "✦",
+        Description = "Aura Fly, animation packs and aura emotes."
+    },
+
+    {
+        Name = "Animations",
+        Icon = "♫",
+        Description = "Manage character animations and emotes."
+    },
+
+    {
+        Name = "Character",
+        Icon = "♙",
+        Description = "Character utilities and appearance."
+    },
+
+    {
+        Name = "Camera",
+        Icon = "◉",
+        Description = "Control your camera and view."
+    },
+
+    {
+        Name = "Settings",
+        Icon = "⚙",
+        Description = "Customize Yamin HUB."
+    },
+}
+
+--==================================================
+-- CLEAR CONTENT
+--==================================================
+
+local function ClearContent()
+    for _, child in ipairs(Scroller:GetChildren()) do
+        if not child:IsA("UIListLayout") then
+            child:Destroy()
+        end
+    end
 end
 
-local function OpenSection(Name)
-    CurrentSection = Name
+--==================================================
+-- REGISTER SECTION
+--==================================================
 
-    SectionTitle.Text = Name
+local function RegisterSection(name, callback)
+    SectionCallbacks[name] = callback
+end
 
-    ClearContent()
+--==================================================
+-- OPEN SECTION
+--==================================================
 
-    for SectionName, Button in pairs(SectionButtons) do
-        if SectionName == Name then
-            Button.BackgroundColor3 = Config.Accent
-        else
-            Button.BackgroundColor3 = Config.Card
+local CurrentSection
+
+local function OpenSection(name)
+    local data
+
+    for _, section in ipairs(SectionData) do
+        if section.Name == name then
+            data = section
+            break
         end
     end
 
-    local Callback = SectionCallbacks[Name]
+    if not data then
+        return
+    end
 
-    if Callback then
-        Callback(Scroller)
+    CurrentSection = name
+
+    SectionTitle.Text = data.Name
+    SectionDescription.Text = data.Description
+
+    ClearContent()
+
+    for sectionName, button in pairs(SectionButtons) do
+        if sectionName == name then
+            Tween(button, {
+                BackgroundColor3 = Config.Colors.AccentDark
+            }, 0.15)
+        else
+            Tween(button, {
+                BackgroundColor3 = Config.Colors.Sidebar
+            }, 0.15)
+        end
+    end
+
+    if SectionCallbacks[name] then
+        SectionCallbacks[name](Scroller)
     end
 end
 
 --==================================================
--- SIDEBAR BUTTONS
+-- CREATE SIDEBAR BUTTONS
 --==================================================
 
-for Index, Section in ipairs(Sections) do
+for index, data in ipairs(SectionData) do
 
-    local Button = Instance.new("TextButton")
-    Button.Name = Section.Name
-    Button.Size = UDim2.new(1, 0, 0, 42)
-    Button.BackgroundColor3 = Config.Card
-    Button.BorderSizePixel = 0
-    Button.Text = ""
-    Button.AutoButtonColor = false
-    Button.LayoutOrder = Index
-    Button.Parent = Sidebar
+    local Button = Create("TextButton", {
+        Name = data.Name,
+        Parent = SidebarScroller,
+
+        Size = UDim2.new(1, 0, 0, 43),
+
+        BackgroundColor3 = Config.Colors.Sidebar,
+        BorderSizePixel = 0,
+
+        Text = "",
+
+        AutoButtonColor = false,
+
+        LayoutOrder = index,
+    })
 
     Corner(Button, 8)
 
-    local Icon = Instance.new("TextLabel")
-    Icon.Size = UDim2.fromOffset(35, 42)
-    Icon.Position = UDim2.fromOffset(5, 0)
-    Icon.BackgroundTransparency = 1
-    Icon.Text = Section.Icon
-    Icon.TextSize = 17
-    Icon.Font = Enum.Font.Gotham
-    Icon.Parent = Button
+    local Icon = Create("TextLabel", {
+        Parent = Button,
 
-    local Label = Instance.new("TextLabel")
-    Label.Size = UDim2.new(1, -45, 1, 0)
-    Label.Position = UDim2.fromOffset(40, 0)
-    Label.BackgroundTransparency = 1
-    Label.Text = Section.Name
-    Label.TextColor3 = Config.Text
-    Label.TextSize = 13
-    Label.Font = Enum.Font.GothamMedium
-    Label.TextXAlignment = Enum.TextXAlignment.Left
-    Label.Parent = Button
+        Position = UDim2.fromOffset(13, 0),
+        Size = UDim2.fromOffset(25, 43),
+
+        BackgroundTransparency = 1,
+
+        Text = data.Icon,
+
+        TextColor3 = Config.Colors.SubText,
+
+        Font = Enum.Font.GothamBold,
+        TextSize = 15,
+    })
+
+    local Label = Create("TextLabel", {
+        Parent = Button,
+
+        Position = UDim2.fromOffset(45, 0),
+        Size = UDim2.new(1, -55, 43),
+
+        BackgroundTransparency = 1,
+
+        Text = data.Name,
+
+        TextColor3 = Config.Colors.Text,
+
+        Font = Enum.Font.GothamMedium,
+        TextSize = 12,
+
+        TextXAlignment = Enum.TextXAlignment.Left,
+    })
 
     Button.MouseEnter:Connect(function()
-        if CurrentSection ~= Section.Name then
-            Tween(Button, 0.12, {
-                BackgroundColor3 = Color3.fromRGB(35, 35, 47)
-            }):Play()
+        if CurrentSection ~= data.Name then
+            Tween(Button, {
+                BackgroundColor3 = Config.Colors.CardHover
+            }, 0.15)
         end
     end)
 
     Button.MouseLeave:Connect(function()
-        if CurrentSection ~= Section.Name then
-            Tween(Button, 0.12, {
-                BackgroundColor3 = Config.Card
-            }):Play()
+        if CurrentSection ~= data.Name then
+            Tween(Button, {
+                BackgroundColor3 = Config.Colors.Sidebar
+            }, 0.15)
         end
     end)
 
     Button.MouseButton1Click:Connect(function()
-        OpenSection(Section.Name)
+        OpenSection(data.Name)
     end)
 
-    SectionButtons[Section.Name] = Button
+    SectionButtons[data.Name] = Button
 end
 
 --==================================================
--- DRAG SYSTEM
+-- DEFAULT SECTION CALLBACKS
 --==================================================
 
-local Dragging = false
-local DragStart
-local StartPosition
-
-TopBar.InputBegan:Connect(function(Input)
-
-    if Input.UserInputType == Enum.UserInputType.MouseButton1
-        or Input.UserInputType == Enum.UserInputType.Touch then
-
-        Dragging = true
-        DragStart = Input.Position
-        StartPosition = Main.Position
-
-        Input.Changed:Connect(function()
-            if Input.UserInputState == Enum.UserInputState.End then
-                Dragging = false
-            end
-        end)
-    end
-end)
-
-UserInputService.InputChanged:Connect(function(Input)
-
-    if not Dragging then
-        return
-    end
-
-    if Input.UserInputType ~= Enum.UserInputType.MouseMovement
-        and Input.UserInputType ~= Enum.UserInputType.Touch then
-        return
-    end
-
-    local Delta = Input.Position - DragStart
-
-    Main.Position = UDim2.new(
-        StartPosition.X.Scale,
-        StartPosition.X.Offset + Delta.X,
-        StartPosition.Y.Scale,
-        StartPosition.Y.Offset + Delta.Y
-    )
-end)
-
---==================================================
--- TOGGLE GUI
---==================================================
-
-UserInputService.InputBegan:Connect(function(Input, Processed)
-
-    if Processed then
-        return
-    end
-
-    if Input.KeyCode == Config.ToggleKey then
-        Gui.Enabled = not Gui.Enabled
-    end
-end)
-
---==================================================
--- DEFAULT DASHBOARD
---==================================================
-
-RegisterSection("Movement", function(Container)
+RegisterSection("Movement", function(parent)
 
     local Card = CreateCard(
+        parent,
         "Movement",
         "Movement controls will be added in Part 2."
     )
 
-    CreateButton(Card, "Coming Soon", function()
-        Notify("Movement features are coming in Part 2.")
-    end)
+    Card.Size = UDim2.new(1, 0, 0, 72)
+
 end)
 
-RegisterSection("Troll", function(Container)
+RegisterSection("Troll", function(parent)
 
-    local Card = CreateCard(
+    CreateCard(
+        parent,
         "Troll",
-        "Player/admin actions will be added in Part 3."
+        "Player interaction controls will be added in Part 3."
     )
 
-    CreateButton(Card, "Coming Soon", function()
-        Notify("Troll features are coming in Part 3.")
-    end)
 end)
 
-RegisterSection("Aura", function(Container)
+RegisterSection("Aura", function(parent)
 
-    local Card = CreateCard(
+    CreateCard(
+        parent,
         "Aura",
-        "Visual effects will be added later."
+        "Aura Fly and animation packs will be added later."
     )
 
-    CreateButton(Card, "Coming Soon", function()
-        Notify("Aura features are coming soon.")
-    end)
 end)
 
-RegisterSection("Animations", function(Container)
+RegisterSection("Animations", function(parent)
 
-    local Card = CreateCard(
+    CreateCard(
+        parent,
         "Animations",
         "Animation controls will be added later."
     )
 
-    CreateButton(Card, "Coming Soon", function()
-        Notify("Animation features are coming soon.")
-    end)
 end)
 
-RegisterSection("Character", function(Container)
+RegisterSection("Character", function(parent)
 
-    local Card = CreateCard(
+    CreateCard(
+        parent,
         "Character",
-        "Character controls will be added later."
+        "Character utilities will be added later."
     )
 
-    CreateButton(Card, "Coming Soon", function()
-        Notify("Character features are coming soon.")
-    end)
 end)
 
-RegisterSection("Camera", function(Container)
+RegisterSection("Camera", function(parent)
 
-    local Card = CreateCard(
+    CreateCard(
+        parent,
         "Camera",
         "Camera controls will be added later."
     )
 
-    CreateButton(Card, "Coming Soon", function()
-        Notify("Camera features are coming soon.")
-    end)
 end)
 
-RegisterSection("Settings", function(Container)
+RegisterSection("Settings", function(parent)
 
-    local Card = CreateCard(
+    CreateCard(
+        parent,
         "Settings",
-        "Yamin HUB settings."
+        "Yamin HUB settings will be added later."
     )
 
-    CreateToggle(Card, "Notifications", function(Value)
-        -- Settings will be connected in Part 4
-    end)
+end)
+
+--==================================================
+-- RIGHT SHIFT TOGGLE
+--==================================================
+
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+
+    if gameProcessed then
+        return
+    end
+
+    if input.KeyCode == Config.ToggleKey then
+        ScreenGui.Enabled = not ScreenGui.Enabled
+    end
+
 end)
 
 --==================================================
@@ -772,41 +1056,57 @@ end)
 
 OpenSection("Movement")
 
-task.wait(0.5)
+Notify(
+    "Yamin HUB",
+    "Yamin HUB loaded successfully."
+)
 
-Notify("⚡ Yamin HUB loaded!", 3)
+--==================================================
+-- PART 2+ API
+--==================================================
 
-print("======================================")
-print("⚡ YAMIN HUB - PART 1 LOADED")
-print("⚡ Toggle: RightShift")
-print("======================================")
---//==================================================
---// YAMIN HUB - PART 2
---// MOVEMENT
---//==================================================
+_G.YaminHUB = {
+    ScreenGui = ScreenGui,
+    Main = Main,
+    Scroller = Scroller,
+
+    Config = Config,
+
+    Create = Create,
+    Corner = Corner,
+    Stroke = Stroke,
+    Padding = Padding,
+    Tween = Tween,
+
+    CreateCard = CreateCard,
+    CreateButton = CreateButton,
+    CreateToggle = CreateToggle,
+
+    Notify = Notify,
+
+    RegisterSection = RegisterSection,
+    OpenSection = OpenSection,
+
+    SectionCallbacks = SectionCallbacks,
+}
+--==================================================
+-- YAMIN HUB - PART 2
+-- MOVEMENT SYSTEM
+--==================================================
 
 local RunService = game:GetService("RunService")
 
---==================================================
--- CHARACTER REFERENCES
---==================================================
+local Yamin = _G.YaminHUB
 
-local Character
-local Humanoid
-local Root
-
-local function UpdateCharacter()
-    Character = Player.Character or Player.CharacterAdded:Wait()
-    Humanoid = Character:WaitForChild("Humanoid")
-    Root = Character:WaitForChild("HumanoidRootPart")
+if not Yamin then
+    warn("Yamin HUB Part 1 must be loaded first.")
+    return
 end
 
-UpdateCharacter()
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
 
-Player.CharacterAdded:Connect(function()
-    task.wait(0.5)
-    UpdateCharacter()
-end)
+local LocalPlayer = Players.LocalPlayer
 
 --==================================================
 -- MOVEMENT SETTINGS
@@ -815,54 +1115,98 @@ end)
 local MovementSettings = {
     WalkSpeed = 16,
     JumpPower = 50,
+
     SprintSpeed = 32,
-    FlySpeed = 60,
+
+    FlySpeed = 65,
+    FlyAcceleration = 8,
+
+    Gravity = workspace.Gravity,
 
     Sprint = false,
     InfiniteJump = false,
     Fly = false,
     Noclip = false,
+    ClickTP = false,
+    Spin = false,
+
+    DashPower = 85,
 }
 
+local Character
+local Humanoid
+local RootPart
+
+local OriginalCollision = {}
+
 --==================================================
--- MOVEMENT HELPERS
+-- CHARACTER REFRESH
 --==================================================
 
-local function GetHumanoid()
-    if not Character or not Character.Parent then
-        UpdateCharacter()
+local function RefreshCharacter()
+    Character = LocalPlayer.Character
+
+    if not Character then
+        return false
     end
 
+    Humanoid = Character:FindFirstChildOfClass("Humanoid")
+    RootPart = Character:FindFirstChild("HumanoidRootPart")
+
+    return Humanoid ~= nil and RootPart ~= nil
+end
+
+RefreshCharacter()
+
+LocalPlayer.CharacterAdded:Connect(function(char)
+    Character = char
+
+    Humanoid = char:WaitForChild("Humanoid", 10)
+    RootPart = char:WaitForChild("HumanoidRootPart", 10)
+
+    task.wait(0.25)
+
+    if Humanoid then
+        Humanoid.WalkSpeed = MovementSettings.WalkSpeed
+        Humanoid.JumpPower = MovementSettings.JumpPower
+    end
+
+    if MovementSettings.Fly then
+        MovementSettings.Fly = false
+    end
+end)
+
+local function GetHumanoid()
     if not Humanoid or not Humanoid.Parent then
-        Humanoid = Character:WaitForChild("Humanoid")
+        RefreshCharacter()
     end
 
     return Humanoid
 end
 
 local function GetRoot()
-    if not Character or not Character.Parent then
-        UpdateCharacter()
+    if not RootPart or not RootPart.Parent then
+        RefreshCharacter()
     end
 
-    if not Root or not Root.Parent then
-        Root = Character:WaitForChild("HumanoidRootPart")
-    end
-
-    return Root
+    return RootPart
 end
 
 --==================================================
 -- WALK SPEED
 --==================================================
 
-local function SetWalkSpeed(Value)
-    MovementSettings.WalkSpeed = Value
+local function SetWalkSpeed(speed)
+    local hum = GetHumanoid()
 
-    local Hum = GetHumanoid()
+    if not hum then
+        return
+    end
+
+    MovementSettings.WalkSpeed = speed
 
     if not MovementSettings.Sprint then
-        Hum.WalkSpeed = Value
+        hum.WalkSpeed = speed
     end
 end
 
@@ -870,28 +1214,35 @@ end
 -- JUMP POWER
 --==================================================
 
-local function SetJumpPower(Value)
-    MovementSettings.JumpPower = Value
+local function SetJumpPower(power)
+    local hum = GetHumanoid()
 
-    local Hum = GetHumanoid()
+    if not hum then
+        return
+    end
 
-    Hum.UseJumpPower = true
-    Hum.JumpPower = Value
+    MovementSettings.JumpPower = power
+    hum.UseJumpPower = true
+    hum.JumpPower = power
 end
 
 --==================================================
 -- SPRINT
 --==================================================
 
-local function SetSprint(Value)
-    MovementSettings.Sprint = Value
+local function SetSprint(enabled)
+    MovementSettings.Sprint = enabled
 
-    local Hum = GetHumanoid()
+    local hum = GetHumanoid()
 
-    if Value then
-        Hum.WalkSpeed = MovementSettings.SprintSpeed
+    if not hum then
+        return
+    end
+
+    if enabled then
+        hum.WalkSpeed = MovementSettings.SprintSpeed
     else
-        Hum.WalkSpeed = MovementSettings.WalkSpeed
+        hum.WalkSpeed = MovementSettings.WalkSpeed
     end
 end
 
@@ -900,46 +1251,84 @@ end
 --==================================================
 
 UserInputService.JumpRequest:Connect(function()
-
     if not MovementSettings.InfiniteJump then
         return
     end
 
-    local Hum = GetHumanoid()
+    local hum = GetHumanoid()
 
-    Hum:ChangeState(Enum.HumanoidStateType.Jumping)
+    if hum then
+        hum:ChangeState(Enum.HumanoidStateType.Jumping)
+    end
 end)
 
 --==================================================
 -- NOCLIP
 --==================================================
 
-RunService.Stepped:Connect(function()
+local function SetNoclip(enabled)
+    MovementSettings.Noclip = enabled
 
+    if not Character then
+        RefreshCharacter()
+    end
+
+    if not Character then
+        return
+    end
+
+    if not enabled then
+        for part, collision in pairs(OriginalCollision) do
+            if part and part.Parent then
+                part.CanCollide = collision
+            end
+        end
+
+        table.clear(OriginalCollision)
+
+        return
+    end
+
+    for _, object in ipairs(Character:GetDescendants()) do
+        if object:IsA("BasePart") then
+            if OriginalCollision[object] == nil then
+                OriginalCollision[object] = object.CanCollide
+            end
+
+            object.CanCollide = false
+        end
+    end
+end
+
+RunService.Stepped:Connect(function()
     if not MovementSettings.Noclip then
         return
     end
 
     if not Character or not Character.Parent then
+        RefreshCharacter()
         return
     end
 
-    for _, Object in ipairs(Character:GetDescendants()) do
-        if Object:IsA("BasePart") then
-            Object.CanCollide = false
+    for _, object in ipairs(Character:GetDescendants()) do
+        if object:IsA("BasePart") then
+            if OriginalCollision[object] == nil then
+                OriginalCollision[object] = object.CanCollide
+            end
+
+            object.CanCollide = false
         end
     end
 end)
 
 --==================================================
--- FLY
+-- FLY ENGINE
 --==================================================
 
 local FlyConnection
-local FlyVelocity
+local FlyVelocity = Vector3.zero
 
 local function StopFly()
-
     MovementSettings.Fly = false
 
     if FlyConnection then
@@ -947,86 +1336,335 @@ local function StopFly()
         FlyConnection = nil
     end
 
-    if FlyVelocity then
-        FlyVelocity:Destroy()
-        FlyVelocity = nil
+    local hum = GetHumanoid()
+    local root = GetRoot()
+
+    if hum then
+        hum.PlatformStand = false
+        hum.AutoRotate = true
     end
 
-    local Hum = GetHumanoid()
+    if root then
+        root.AssemblyLinearVelocity = Vector3.zero
+        root.AssemblyAngularVelocity = Vector3.zero
+    end
 
-    Hum.PlatformStand = false
+    FlyVelocity = Vector3.zero
 end
 
 local function StartFly()
-
     if MovementSettings.Fly then
         return
     end
 
+    if not RefreshCharacter() then
+        Yamin.Notify("Fly", "Character is not ready.")
+        return
+    end
+
+    local hum = Humanoid
+    local root = RootPart
+
     MovementSettings.Fly = true
+    FlyVelocity = Vector3.zero
 
-    local Hum = GetHumanoid()
-    local RootPart = GetRoot()
+    hum.AutoRotate = false
+    hum.PlatformStand = true
 
-    Hum.PlatformStand = true
-
-    FlyVelocity = Instance.new("BodyVelocity")
-    FlyVelocity.Name = "YaminFlyVelocity"
-    FlyVelocity.MaxForce = Vector3.new(
-        math.huge,
-        math.huge,
-        math.huge
-    )
-    FlyVelocity.Velocity = Vector3.zero
-    FlyVelocity.Parent = RootPart
-
-    FlyConnection = RunService.RenderStepped:Connect(function()
+    FlyConnection = RunService.RenderStepped:Connect(function(dt)
 
         if not MovementSettings.Fly then
             return
         end
 
-        if not RootPart or not RootPart.Parent then
+        if not Character
+            or not Character.Parent
+            or not Humanoid
+            or Humanoid.Health <= 0
+            or not RootPart
+            or not RootPart.Parent then
+
             StopFly()
             return
         end
 
-        local Camera = workspace.CurrentCamera
+        local camera = workspace.CurrentCamera
 
-        local Direction = Vector3.zero
+        if not camera then
+            return
+        end
+
+        -- Camera-relative directions
+        local forward = camera.CFrame.LookVector
+        local right = camera.CFrame.RightVector
+        local up = camera.CFrame.UpVector
+
+        local direction = Vector3.zero
 
         if UserInputService:IsKeyDown(Enum.KeyCode.W) then
-            Direction += Camera.CFrame.LookVector
+            direction += forward
         end
 
         if UserInputService:IsKeyDown(Enum.KeyCode.S) then
-            Direction -= Camera.CFrame.LookVector
+            direction -= forward
         end
 
         if UserInputService:IsKeyDown(Enum.KeyCode.D) then
-            Direction += Camera.CFrame.RightVector
+            direction += right
         end
 
         if UserInputService:IsKeyDown(Enum.KeyCode.A) then
-            Direction -= Camera.CFrame.RightVector
+            direction -= right
         end
 
         if UserInputService:IsKeyDown(Enum.KeyCode.Space) then
-            Direction += Vector3.new(0, 1, 0)
+            direction += up
         end
 
-        if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then
-            Direction -= Vector3.new(0, 1, 0)
+        if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl)
+            or UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
+
+            direction -= up
         end
 
-        if Direction.Magnitude > 0 then
-            Direction = Direction.Unit
-            FlyVelocity.Velocity =
-                Direction * MovementSettings.FlySpeed
+        if direction.Magnitude > 0 then
+            direction = direction.Unit
+        end
+
+        -- Smooth acceleration
+        local targetVelocity =
+            direction * MovementSettings.FlySpeed
+
+        local acceleration =
+            math.clamp(
+                MovementSettings.FlyAcceleration * dt * 10,
+                0,
+                1
+            )
+
+        FlyVelocity =
+            FlyVelocity:Lerp(targetVelocity, acceleration)
+
+        --==================================================
+        -- WALL / OBSTACLE DETECTION
+        --==================================================
+
+        local moveVector = FlyVelocity * dt
+
+        if moveVector.Magnitude > 0 then
+
+            local rayParams = RaycastParams.new()
+
+            rayParams.FilterType = Enum.RaycastFilterType.Exclude
+            rayParams.FilterDescendantsInstances = {Character}
+            rayParams.IgnoreWater = true
+
+            local result = workspace:Raycast(
+                RootPart.Position,
+                moveVector,
+                rayParams
+            )
+
+            if result then
+                -- Remove velocity going directly into the wall
+                local normal = result.Normal
+
+                local intoWall =
+                    FlyVelocity:Dot(normal)
+
+                if intoWall < 0 then
+                    FlyVelocity =
+                        FlyVelocity - normal * intoWall
+                end
+
+                moveVector = FlyVelocity * dt
+
+                -- Prevent crossing the detected obstacle
+                local distance = (
+                    result.Position - RootPart.Position
+                ).Magnitude
+
+                local allowedDistance =
+                    math.max(distance - 1.5, 0)
+
+                if moveVector.Magnitude > allowedDistance then
+                    moveVector =
+                        moveVector.Unit * allowedDistance
+                end
+            end
+        end
+
+        --==================================================
+        -- MOVE CHARACTER
+        --==================================================
+
+        local newPosition =
+            RootPart.Position + moveVector
+
+        --==================================================
+        -- FACE FLIGHT DIRECTION
+        --==================================================
+
+        local lookDirection
+
+        if FlyVelocity.Magnitude > 0.5 then
+            lookDirection = FlyVelocity.Unit
         else
-            FlyVelocity.Velocity = Vector3.zero
+            lookDirection = camera.CFrame.LookVector
         end
+
+        local targetCFrame =
+            CFrame.lookAt(
+                newPosition,
+                newPosition + lookDirection,
+                Vector3.yAxis
+            )
+
+        RootPart.CFrame =
+            RootPart.CFrame:Lerp(
+                targetCFrame,
+                math.clamp(dt * 12, 0, 1)
+            )
+
+        RootPart.AssemblyLinearVelocity = Vector3.zero
+        RootPart.AssemblyAngularVelocity = Vector3.zero
     end)
+end
+
+local function SetFly(enabled)
+    if enabled then
+        StartFly()
+    else
+        StopFly()
+    end
+end
+
+--==================================================
+-- CLICK TELEPORT
+--==================================================
+
+local Mouse = LocalPlayer:GetMouse()
+
+Mouse.Button1Down:Connect(function()
+    if not MovementSettings.ClickTP then
+        return
+    end
+
+    local root = GetRoot()
+
+    if not root then
+        return
+    end
+
+    if not Mouse.Hit then
+        return
+    end
+
+    root.CFrame =
+        CFrame.new(
+            Mouse.Hit.Position + Vector3.new(0, 3, 0)
+        )
+end)
+
+--==================================================
+-- SPIN
+--==================================================
+
+RunService.RenderStepped:Connect(function(dt)
+
+    if not MovementSettings.Spin then
+        return
+    end
+
+    local root = GetRoot()
+
+    if not root then
+        return
+    end
+
+    root.CFrame =
+        root.CFrame *
+        CFrame.Angles(
+            0,
+            math.rad(500) * dt,
+            0
+        )
+end)
+
+--==================================================
+-- DASH
+--==================================================
+
+local function Dash()
+    local root = GetRoot()
+
+    if not root then
+        return
+    end
+
+    local camera = workspace.CurrentCamera
+
+    if not camera then
+        return
+    end
+
+    local direction = Vector3.zero
+
+    if UserInputService:IsKeyDown(Enum.KeyCode.W) then
+        direction += camera.CFrame.LookVector
+    end
+
+    if UserInputService:IsKeyDown(Enum.KeyCode.S) then
+        direction -= camera.CFrame.LookVector
+    end
+
+    if UserInputService:IsKeyDown(Enum.KeyCode.D) then
+        direction += camera.CFrame.RightVector
+    end
+
+    if UserInputService:IsKeyDown(Enum.KeyCode.A) then
+        direction -= camera.CFrame.RightVector
+    end
+
+    if direction.Magnitude == 0 then
+        direction = camera.CFrame.LookVector
+    else
+        direction = direction.Unit
+    end
+
+    local params = RaycastParams.new()
+
+    params.FilterType = Enum.RaycastFilterType.Exclude
+    params.FilterDescendantsInstances = {Character}
+
+    local result = workspace:Raycast(
+        root.Position,
+        direction * MovementSettings.DashPower,
+        params
+    )
+
+    local distance = MovementSettings.DashPower
+
+    if result then
+        distance =
+            math.max(
+                (result.Position - root.Position).Magnitude - 3,
+                0
+            )
+    end
+
+    root.CFrame =
+        root.CFrame +
+        direction * distance
+end
+
+--==================================================
+-- GRAVITY
+--==================================================
+
+local function SetGravity(value)
+    workspace.Gravity = value
+    MovementSettings.Gravity = value
 end
 
 --==================================================
@@ -1035,208 +1673,256 @@ end
 
 local function ResetMovement()
 
-    StopFly()
-
     MovementSettings.WalkSpeed = 16
     MovementSettings.JumpPower = 50
-    MovementSettings.SprintSpeed = 32
-    MovementSettings.FlySpeed = 60
-
     MovementSettings.Sprint = false
     MovementSettings.InfiniteJump = false
-    MovementSettings.Noclip = false
+    MovementSettings.ClickTP = false
+    MovementSettings.Spin = false
 
-    local Hum = GetHumanoid()
+    StopFly()
+    SetNoclip(false)
 
-    Hum.WalkSpeed = 16
-    Hum.UseJumpPower = true
-    Hum.JumpPower = 50
+    workspace.Gravity = 196.2
+    MovementSettings.Gravity = 196.2
 
-    Notify("Movement settings reset.")
+    local hum = GetHumanoid()
+
+    if hum then
+        hum.WalkSpeed = 16
+        hum.UseJumpPower = true
+        hum.JumpPower = 50
+    end
+
+    Yamin.Notify(
+        "Movement",
+        "Movement settings have been reset."
+    )
 end
 
 --==================================================
--- MOVEMENT TAB
+-- MOVEMENT UI
 --==================================================
 
-RegisterSection("Movement", function(Container)
+Yamin.RegisterSection("Movement", function(parent)
 
-    -- WalkSpeed
-    local SpeedCard = CreateCard(
+    -- SPEED
+
+    local SpeedCard = Yamin.CreateCard(
+        parent,
         "Walk Speed",
-        "Change your character's movement speed."
+        "Change your normal movement speed."
     )
 
-    CreateButton(
+    Yamin.CreateButton(
         SpeedCard,
-        "16",
+        "Normal • 16",
         function()
             SetWalkSpeed(16)
-            Notify("WalkSpeed set to 16")
         end
     )
 
-    -- Fast Speed
-    local FastCard = CreateCard(
-        "Fast Walk",
-        "Set a faster movement speed."
-    )
-
-    CreateButton(
-        FastCard,
-        "32",
+    Yamin.CreateButton(
+        SpeedCard,
+        "Fast • 32",
         function()
             SetWalkSpeed(32)
-            Notify("WalkSpeed set to 32")
         end
     )
 
-    -- Jump
-    local JumpCard = CreateCard(
+    Yamin.CreateButton(
+        SpeedCard,
+        "Super • 60",
+        function()
+            SetWalkSpeed(60)
+        end
+    )
+
+    -- JUMP
+
+    local JumpCard = Yamin.CreateCard(
+        parent,
         "Jump Power",
         "Change how high your character jumps."
     )
 
-    CreateButton(
+    Yamin.CreateButton(
         JumpCard,
-        "75",
+        "Normal • 50",
         function()
-            SetJumpPower(75)
-            Notify("JumpPower set to 75")
+            SetJumpPower(50)
         end
     )
 
-    -- Super Jump
-    local SuperJumpCard = CreateCard(
-        "Super Jump",
-        "High jump preset."
-    )
-
-    CreateButton(
-        SuperJumpCard,
-        "150",
+    Yamin.CreateButton(
+        JumpCard,
+        "High • 100",
         function()
-            SetJumpPower(150)
-            Notify("JumpPower set to 150")
+            SetJumpPower(100)
         end
     )
 
-    -- Sprint
-    local SprintCard = CreateCard(
-        "Sprint",
-        "Temporarily increase your movement speed."
-    )
-
-    CreateToggle(
-        SprintCard,
-        "Sprint",
-        function(Value)
-            SetSprint(Value)
+    Yamin.CreateButton(
+        JumpCard,
+        "Super • 175",
+        function()
+            SetJumpPower(175)
         end
     )
 
-    -- Infinite Jump
-    local InfiniteCard = CreateCard(
+    -- SPRINT
+
+    Yamin.CreateToggle(
+        parent,
+        "Sprint • 32 Speed",
+        false,
+        function(enabled)
+            SetSprint(enabled)
+        end
+    )
+
+    -- INFINITE JUMP
+
+    Yamin.CreateToggle(
+        parent,
         "Infinite Jump",
-        "Jump again while already in the air."
-    )
-
-    CreateToggle(
-        InfiniteCard,
-        "Infinite Jump",
-        function(Value)
-            MovementSettings.InfiniteJump = Value
-
-            Notify(
-                Value and
-                "Infinite Jump enabled." or
-                "Infinite Jump disabled."
-            )
+        false,
+        function(enabled)
+            MovementSettings.InfiniteJump = enabled
         end
     )
 
-    -- Fly
-    local FlyCard = CreateCard(
-        "Fly",
-        "Fly using WASD + Space/Ctrl."
+    -- FLY
+
+    local FlyCard = Yamin.CreateCard(
+        parent,
+        "Flight",
+        "Smooth camera-relative flight."
     )
 
-    CreateToggle(
+    Yamin.CreateToggle(
         FlyCard,
         "Fly",
-        function(Value)
-
-            if Value then
-                StartFly()
-                Notify("Fly enabled.")
-            else
-                StopFly()
-                Notify("Fly disabled.")
-            end
-
+        false,
+        function(enabled)
+            SetFly(enabled)
         end
     )
 
-    -- Fly Speed
-    local FlySpeedCard = CreateCard(
-        "Fly Speed",
-        "Change your flying speed."
-    )
-
-    CreateButton(
-        FlySpeedCard,
-        "60",
+    Yamin.CreateButton(
+        FlyCard,
+        "Fly Speed • 65",
         function()
-            MovementSettings.FlySpeed = 60
-            Notify("Fly speed set to 60")
+            MovementSettings.FlySpeed = 65
+            Yamin.Notify("Fly", "Fly speed set to 65.")
         end
     )
 
-    -- Fast Fly
-    local FastFlyCard = CreateCard(
-        "Fast Fly",
-        "Increase flying speed."
-    )
-
-    CreateButton(
-        FastFlyCard,
-        "120",
+    Yamin.CreateButton(
+        FlyCard,
+        "Fast Fly • 120",
         function()
             MovementSettings.FlySpeed = 120
-            Notify("Fly speed set to 120")
+            Yamin.Notify("Fly", "Fly speed set to 120.")
         end
     )
 
-    -- Noclip
-    local NoclipCard = CreateCard(
-        "Noclip",
-        "Walk through physical objects."
+    Yamin.CreateButton(
+        FlyCard,
+        "Ultra Fly • 200",
+        function()
+            MovementSettings.FlySpeed = 200
+            Yamin.Notify("Fly", "Fly speed set to 200.")
+        end
     )
 
-    CreateToggle(
-        NoclipCard,
+    -- NOCLIP
+
+    Yamin.CreateToggle(
+        parent,
         "Noclip",
-        function(Value)
+        false,
+        function(enabled)
+            SetNoclip(enabled)
+        end
+    )
 
-            MovementSettings.Noclip = Value
+    -- CLICK TP
 
-            Notify(
-                Value and
-                "Noclip enabled." or
-                "Noclip disabled."
+    Yamin.CreateToggle(
+        parent,
+        "Click Teleport",
+        false,
+        function(enabled)
+            MovementSettings.ClickTP = enabled
+
+            Yamin.Notify(
+                "Click Teleport",
+                enabled
+                    and "Click anywhere to teleport."
+                    or "Click Teleport disabled."
             )
         end
     )
 
-    -- Reset
-    local ResetCard = CreateCard(
-        "Reset Movement",
-        "Restore normal movement settings."
+    -- SPIN
+
+    Yamin.CreateToggle(
+        parent,
+        "Spin",
+        false,
+        function(enabled)
+            MovementSettings.Spin = enabled
+        end
     )
 
-    CreateButton(
-        ResetCard,
-        "RESET",
+    -- DASH
+
+    Yamin.CreateButton(
+        parent,
+        "Dash",
+        function()
+            Dash()
+        end
+    )
+
+    -- GRAVITY
+
+    local GravityCard = Yamin.CreateCard(
+        parent,
+        "Gravity",
+        "Change world gravity."
+    )
+
+    Yamin.CreateButton(
+        GravityCard,
+        "Normal Gravity • 196.2",
+        function()
+            SetGravity(196.2)
+        end
+    )
+
+    Yamin.CreateButton(
+        GravityCard,
+        "Low Gravity • 70",
+        function()
+            SetGravity(70)
+        end
+    )
+
+    Yamin.CreateButton(
+        GravityCard,
+        "Zero Gravity",
+        function()
+            SetGravity(0)
+        end
+    )
+
+    -- RESET
+
+    Yamin.CreateButton(
+        parent,
+        "Reset Movement",
         function()
             ResetMovement()
         end
@@ -1244,1126 +1930,1795 @@ RegisterSection("Movement", function(Container)
 end)
 
 --==================================================
--- DONE
+-- LOAD MOVEMENT
 --==================================================
 
-print("======================================")
-print("⚡ YAMIN HUB - PART 2 LOADED")
-print("🏃 Movement system ready")
-print("======================================")
---//==================================================
---// YAMIN HUB - PART 3
---// PLAYER / ADMIN
---//==================================================
-
-local SelectedPlayer = nil
-
+if Yamin.OpenSection then
+    Yamin.OpenSection("Movement")
+end
 --==================================================
--- PLAYER HELPERS
+-- YAMIN HUB - PART 3
+-- TROLL / PLAYER CONTROLS
 --==================================================
 
-local function GetPlayerByName(Name)
-    if not Name then
-        return nil
-    end
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
 
-    Name = string.lower(Name)
+local Yamin = _G.YaminHUB
 
-    for _, Target in ipairs(Players:GetPlayers()) do
-        if string.lower(Target.Name) == Name
-            or string.lower(Target.DisplayName) == Name then
-            return Target
-        end
-    end
-
-    return nil
+if not Yamin then
+    warn("Yamin HUB Part 1 must be loaded first.")
+    return
 end
 
-local function GetTargetCharacter(Target)
-    if not Target then
-        return nil
-    end
-
-    return Target.Character
-end
-
-local function GetTargetRoot(Target)
-    local TargetCharacter = GetTargetCharacter(Target)
-
-    if not TargetCharacter then
-        return nil
-    end
-
-    return TargetCharacter:FindFirstChild("HumanoidRootPart")
-end
-
-local function GetTargetHumanoid(Target)
-    local TargetCharacter = GetTargetCharacter(Target)
-
-    if not TargetCharacter then
-        return nil
-    end
-
-    return TargetCharacter:FindFirstChildOfClass("Humanoid")
-end
-
---==================================================
--- PLAYER SELECTOR
---==================================================
-
-local function CreatePlayerSelector()
-
-    local Card = CreateCard(
-        "Selected Player",
-        "Choose a player for admin actions."
-    )
-
-    local Button = Instance.new("TextButton")
-    Button.Name = "PlayerSelector"
-    Button.Size = UDim2.fromOffset(180, 34)
-    Button.Position = UDim2.new(1, -195, 0.5, -17)
-    Button.BackgroundColor3 = Config.Secondary
-    Button.BorderSizePixel = 0
-    Button.Text = "Select Player"
-    Button.TextColor3 = Config.Text
-    Button.TextSize = 12
-    Button.Font = Enum.Font.GothamMedium
-    Button.AutoButtonColor = false
-    Button.Parent = Card
-
-    Corner(Button, 7)
-    Stroke(Button, Config.Border, 1)
-
-    local Dropdown = Instance.new("Frame")
-    Dropdown.Name = "PlayerDropdown"
-    Dropdown.Size = UDim2.fromOffset(180, 200)
-    Dropdown.Position = UDim2.new(1, -195, 1, 5)
-    Dropdown.BackgroundColor3 = Config.Secondary
-    Dropdown.BorderSizePixel = 0
-    Dropdown.Visible = false
-    Dropdown.ZIndex = 20
-    Dropdown.Parent = Card
-
-    Corner(Dropdown, 8)
-    Stroke(Dropdown, Config.Border, 1)
-
-    local List = Instance.new("ScrollingFrame")
-    List.Size = UDim2.new(1, -10, 1, -10)
-    List.Position = UDim2.fromOffset(5, 5)
-    List.BackgroundTransparency = 1
-    List.BorderSizePixel = 0
-    List.ScrollBarThickness = 3
-    List.ScrollBarImageColor3 = Config.Accent
-    List.CanvasSize = UDim2.new(0, 0, 0, 0)
-    List.AutomaticCanvasSize = Enum.AutomaticSize.Y
-    List.ZIndex = 21
-    List.Parent = Dropdown
-
-    local Layout = Instance.new("UIListLayout")
-    Layout.Padding = UDim.new(0, 4)
-    Layout.Parent = List
-
-    local function RefreshPlayers()
-
-        for _, Object in ipairs(List:GetChildren()) do
-            if not Object:IsA("UIListLayout") then
-                Object:Destroy()
-            end
-        end
-
-        for _, Target in ipairs(Players:GetPlayers()) do
-
-            if Target ~= Player then
-
-                local PlayerButton = Instance.new("TextButton")
-                PlayerButton.Size = UDim2.new(1, 0, 0, 32)
-                PlayerButton.BackgroundColor3 = Config.Card
-                PlayerButton.BorderSizePixel = 0
-                PlayerButton.Text =
-                    Target.DisplayName .. "  @" .. Target.Name
-                PlayerButton.TextColor3 = Config.Text
-                PlayerButton.TextSize = 11
-                PlayerButton.Font = Enum.Font.Gotham
-                PlayerButton.TextXAlignment = Enum.TextXAlignment.Left
-                PlayerButton.AutoButtonColor = false
-                PlayerButton.ZIndex = 22
-                PlayerButton.Parent = List
-
-                Corner(PlayerButton, 6)
-
-                local ButtonPadding = Instance.new("UIPadding")
-                ButtonPadding.PaddingLeft = UDim.new(0, 8)
-                ButtonPadding.Parent = PlayerButton
-
-                PlayerButton.MouseButton1Click:Connect(function()
-
-                    SelectedPlayer = Target
-
-                    Button.Text =
-                        Target.DisplayName
-
-                    Dropdown.Visible = false
-
-                    Notify(
-                        "Selected: " ..
-                        Target.DisplayName
-                    )
-                end)
-            end
-        end
-    end
-
-    Button.MouseButton1Click:Connect(function()
-
-        Dropdown.Visible = not Dropdown.Visible
-
-        if Dropdown.Visible then
-            RefreshPlayers()
-        end
-    end)
-
-    Players.PlayerAdded:Connect(RefreshPlayers)
-    Players.PlayerRemoving:Connect(function(Target)
-
-        if SelectedPlayer == Target then
-            SelectedPlayer = nil
-            Button.Text = "Select Player"
-        end
-
-        RefreshPlayers()
-    end)
-
-    return Card
-end
-
---==================================================
--- TELEPORT TO PLAYER
---==================================================
-
-local function TeleportToPlayer(Target)
-
-    if not Target then
-        Notify("No player selected.")
-        return
-    end
-
-    local TargetRoot = GetTargetRoot(Target)
-
-    if not TargetRoot then
-        Notify("Target character not available.")
-        return
-    end
-
-    local MyRoot = GetRoot()
-
-    if not MyRoot then
-        return
-    end
-
-    MyRoot.CFrame =
-        TargetRoot.CFrame *
-        CFrame.new(0, 0, 4)
-
-    Notify(
-        "Teleported to " ..
-        Target.DisplayName
-    )
-end
-
---==================================================
--- BRING PLAYER
---==================================================
-
-local function BringPlayer(Target)
-
-    if not Target then
-        Notify("No player selected.")
-        return
-    end
-
-    local TargetRoot = GetTargetRoot(Target)
-    local MyRoot = GetRoot()
-
-    if not TargetRoot or not MyRoot then
-        Notify("Character unavailable.")
-        return
-    end
-
-    TargetRoot.CFrame =
-        MyRoot.CFrame *
-        CFrame.new(0, 0, -4)
-
-    Notify(
-        "Brought " ..
-        Target.DisplayName
-    )
-end
-
---==================================================
--- FREEZE / UNFREEZE
---==================================================
-
-local FrozenPlayers = {}
-
-local function FreezePlayer(Target)
-
-    if not Target then
-        Notify("No player selected.")
-        return
-    end
-
-    local TargetHumanoid = GetTargetHumanoid(Target)
-
-    if not TargetHumanoid then
-        Notify("Target humanoid unavailable.")
-        return
-    end
-
-    FrozenPlayers[Target] = true
-
-    TargetHumanoid.WalkSpeed = 0
-    TargetHumanoid.JumpPower = 0
-    TargetHumanoid.AutoRotate = false
-
-    Notify(
-        "Frozen: " ..
-        Target.DisplayName
-    )
-end
-
-local function UnfreezePlayer(Target)
-
-    if not Target then
-        Notify("No player selected.")
-        return
-    end
-
-    local TargetHumanoid = GetTargetHumanoid(Target)
-
-    if not TargetHumanoid then
-        Notify("Target humanoid unavailable.")
-        return
-    end
-
-    FrozenPlayers[Target] = nil
-
-    TargetHumanoid.WalkSpeed = 16
-    TargetHumanoid.JumpPower = 50
-    TargetHumanoid.AutoRotate = true
-
-    Notify(
-        "Unfrozen: " ..
-        Target.DisplayName
-    )
-end
-
---==================================================
--- RESPAWN PLAYER
---==================================================
-
-local function RespawnPlayer(Target)
-
-    if not Target then
-        Notify("No player selected.")
-        return
-    end
-
-    local TargetCharacter = Target.Character
-    local TargetHumanoid = GetTargetHumanoid(Target)
-
-    if not TargetCharacter or not TargetHumanoid then
-        Notify("Character unavailable.")
-        return
-    end
-
-    TargetHumanoid.Health = 0
-
-    Notify(
-        "Respawned: " ..
-        Target.DisplayName
-    )
-end
-
---==================================================
--- HEAL SELF
---==================================================
-
-local function HealSelf()
-
-    local Hum = GetHumanoid()
-
-    if Hum then
-        Hum.Health = Hum.MaxHealth
-        Notify("You have been healed.")
-    end
-end
-
---==================================================
--- RESET CHARACTER
---==================================================
-
-local function ResetCharacter()
-
-    local Hum = GetHumanoid()
-
-    if Hum then
-        Hum.Health = 0
-        Notify("Character reset.")
-    end
-end
-
---==================================================
--- CHARACTER HIGHLIGHT
---==================================================
-
-local HighlightEnabled = false
-local HighlightObjects = {}
-
-local function AddHighlight(Target)
-
-    if not Target or not Target.Character then
-        return
-    end
-
-    if HighlightObjects[Target] then
-        return
-    end
-
-    local Highlight = Instance.new("Highlight")
-    Highlight.Name = "YaminHighlight"
-    Highlight.FillColor = Config.Accent
-    Highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
-    Highlight.FillTransparency = 0.65
-    Highlight.OutlineTransparency = 0
-    Highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-    Highlight.Adornee = Target.Character
-    Highlight.Parent = Target.Character
-
-    HighlightObjects[Target] = Highlight
-end
-
-local function RemoveHighlight(Target)
-
-    local Highlight = HighlightObjects[Target]
-
-    if Highlight then
-        Highlight:Destroy()
-        HighlightObjects[Target] = nil
-    end
-end
-
-local function SetHighlights(Value)
-
-    HighlightEnabled = Value
-
-    for _, Target in ipairs(Players:GetPlayers()) do
-
-        if Target ~= Player then
-
-            if Value then
-                AddHighlight(Target)
-            else
-                RemoveHighlight(Target)
-            end
-        end
-    end
-end
-
-Players.PlayerAdded:Connect(function(Target)
-
-    Target.CharacterAdded:Connect(function()
-
-        if HighlightEnabled then
-            task.wait(1)
-            AddHighlight(Target)
-        end
-    end)
-end)
-
-Players.PlayerRemoving:Connect(function(Target)
-    RemoveHighlight(Target)
-    FrozenPlayers[Target] = nil
-end)
-
---==================================================
--- TROLL TAB
---==================================================
-
-RegisterSection("Troll", function(Container)
-
-    CreatePlayerSelector()
-
-    local TeleportCard = CreateCard(
-        "Teleport",
-        "Teleport yourself to the selected player."
-    )
-
-    CreateButton(
-        TeleportCard,
-        "TELEPORT",
-        function()
-            TeleportToPlayer(SelectedPlayer)
-        end
-    )
-
-    local BringCard = CreateCard(
-        "Bring",
-        "Move the selected player to you."
-    )
-
-    CreateButton(
-        BringCard,
-        "BRING",
-        function()
-            BringPlayer(SelectedPlayer)
-        end
-    )
-
-    local FreezeCard = CreateCard(
-        "Freeze",
-        "Freeze the selected player."
-    )
-
-    CreateButton(
-        FreezeCard,
-        "FREEZE",
-        function()
-            FreezePlayer(SelectedPlayer)
-        end
-    )
-
-    local UnfreezeCard = CreateCard(
-        "Unfreeze",
-        "Allow the selected player to move again."
-    )
-
-    CreateButton(
-        UnfreezeCard,
-        "UNFREEZE",
-        function()
-            UnfreezePlayer(SelectedPlayer)
-        end
-    )
-
-    local RespawnCard = CreateCard(
-        "Respawn",
-        "Respawn the selected player."
-    )
-
-    CreateButton(
-        RespawnCard,
-        "RESPAWN",
-        function()
-            RespawnPlayer(SelectedPlayer)
-        end
-    )
-end)
-
---==================================================
--- CHARACTER TAB
---==================================================
-
-RegisterSection("Character", function(Container)
-
-    local HealCard = CreateCard(
-        "Heal",
-        "Restore your character's health."
-    )
-
-    CreateButton(
-        HealCard,
-        "HEAL",
-        function()
-            HealSelf()
-        end
-    )
-
-    local ResetCard = CreateCard(
-        "Reset Character",
-        "Reset your current character."
-    )
-
-    CreateButton(
-        ResetCard,
-        "RESET",
-        function()
-            ResetCharacter()
-        end
-    )
-
-    local HighlightCard = CreateCard(
-        "Player Highlights",
-        "Highlight other players."
-    )
-
-    CreateToggle(
-        HighlightCard,
-        "ESP",
-        function(Value)
-            SetHighlights(Value)
-
-            Notify(
-                Value and
-                "Player highlights enabled." or
-                "Player highlights disabled."
-            )
-        end
-    )
-end)
-
---==================================================
--- DONE
---==================================================
-
-print("======================================")
-print("⚡ YAMIN HUB - PART 3 LOADED")
-print("👤 Player/Admin system ready")
-print("======================================")
---//==================================================
---// YAMIN HUB - PART 4
---// SETTINGS / CAMERA / ANIMATIONS / AURA
---//==================================================
+local LocalPlayer = Players.LocalPlayer
 
 --==================================================
 -- SETTINGS
 --==================================================
 
-local HubSettings = {
-    Notifications = true,
-    AnimationEffects = true,
-    UIVisible = true,
-    CameraFOV = 70,
+local TrollSettings = {
+    SelectedPlayer = nil,
+
+    Stalk = false,
+    Headsit = false,
+    Follow = false,
+    Orbit = false,
+
+    OrbitDistance = 7,
+    OrbitHeight = 3,
+    FollowDistance = 5,
+
+    CameraLock = false,
+    Spectating = false,
+}
+
+local TrollConnection
+
+--==================================================
+-- CHARACTER HELPERS
+--==================================================
+
+local function GetCharacter(player)
+    if not player then
+        return nil
+    end
+
+    return player.Character
+end
+
+local function GetRoot(player)
+    local character = GetCharacter(player)
+
+    if not character then
+        return nil
+    end
+
+    return character:FindFirstChild("HumanoidRootPart")
+end
+
+local function GetHumanoid(player)
+    local character = GetCharacter(player)
+
+    if not character then
+        return nil
+    end
+
+    return character:FindFirstChildOfClass("Humanoid")
+end
+
+local function GetTarget()
+    local target = TrollSettings.SelectedPlayer
+
+    if not target then
+        return nil
+    end
+
+    if target == LocalPlayer then
+        return nil
+    end
+
+    if not target.Parent then
+        return nil
+    end
+
+    return target
+end
+
+--==================================================
+-- STOP POSITION MODES
+--==================================================
+
+local function StopPositionModes()
+
+    TrollSettings.Stalk = false
+    TrollSettings.Headsit = false
+    TrollSettings.Follow = false
+    TrollSettings.Orbit = false
+
+end
+
+--==================================================
+-- POSITION CONTROLLER
+--==================================================
+
+TrollConnection = RunService.RenderStepped:Connect(function(dt)
+
+    local target = GetTarget()
+
+    if not target then
+        return
+    end
+
+    local targetRoot = GetRoot(target)
+
+    local localCharacter = LocalPlayer.Character
+    local localRoot =
+        localCharacter
+        and localCharacter:FindFirstChild("HumanoidRootPart")
+
+    if not targetRoot or not localRoot then
+        return
+    end
+
+    --==============================================
+    -- STALK
+    --==============================================
+
+    if TrollSettings.Stalk then
+
+        -- Behind the player
+        local position =
+            targetRoot.Position
+            - targetRoot.CFrame.LookVector * 3
+
+        -- Face the target
+        local targetCFrame =
+            CFrame.lookAt(
+                position,
+                targetRoot.Position
+            )
+
+        localRoot.CFrame =
+            localRoot.CFrame:Lerp(
+                targetCFrame,
+                math.clamp(dt * 15, 0, 1)
+            )
+
+    --==============================================
+    -- HEADSIT
+    --==============================================
+
+    elseif TrollSettings.Headsit then
+
+        local position =
+            targetRoot.Position
+            + Vector3.new(0, 3.2, 0)
+
+        local targetCFrame =
+            CFrame.new(
+                position,
+                targetRoot.Position
+            )
+
+        localRoot.CFrame =
+            localRoot.CFrame:Lerp(
+                targetCFrame,
+                math.clamp(dt * 18, 0, 1)
+            )
+
+    --==============================================
+    -- FOLLOW
+    --==============================================
+
+    elseif TrollSettings.Follow then
+
+        local desiredPosition =
+            targetRoot.Position
+            - targetRoot.CFrame.LookVector
+            * TrollSettings.FollowDistance
+
+        localRoot.CFrame =
+            localRoot.CFrame:Lerp(
+                CFrame.lookAt(
+                    desiredPosition,
+                    targetRoot.Position
+                ),
+                math.clamp(dt * 8, 0, 1)
+            )
+
+    --==============================================
+    -- ORBIT
+    --==============================================
+
+    elseif TrollSettings.Orbit then
+
+        local time = os.clock()
+
+        local angle = time * 2
+
+        local offset =
+            Vector3.new(
+                math.cos(angle)
+                    * TrollSettings.OrbitDistance,
+
+                TrollSettings.OrbitHeight,
+
+                math.sin(angle)
+                    * TrollSettings.OrbitDistance
+            )
+
+        local position =
+            targetRoot.Position + offset
+
+        localRoot.CFrame =
+            localRoot.CFrame:Lerp(
+                CFrame.lookAt(
+                    position,
+                    targetRoot.Position
+                ),
+                math.clamp(dt * 10, 0, 1)
+            )
+    end
+end)
+
+--==================================================
+-- SELECT PLAYER
+--==================================================
+
+local function SelectPlayer(player)
+
+    if not player then
+        return
+    end
+
+    if player == LocalPlayer then
+        Yamin.Notify(
+            "Player Selector",
+            "You cannot select yourself."
+        )
+
+        return
+    end
+
+    TrollSettings.SelectedPlayer = player
+
+    Yamin.Notify(
+        "Target Selected",
+        player.DisplayName .. "  @" .. player.Name
+    )
+end
+
+--==================================================
+-- TP BEHIND
+--==================================================
+
+local function TPBehind()
+
+    local target = GetTarget()
+
+    if not target then
+        Yamin.Notify(
+            "TP Behind",
+            "Select a player first."
+        )
+
+        return
+    end
+
+    local targetRoot = GetRoot(target)
+
+    local localCharacter = LocalPlayer.Character
+    local localRoot =
+        localCharacter
+        and localCharacter:FindFirstChild("HumanoidRootPart")
+
+    if not targetRoot or not localRoot then
+        return
+    end
+
+    local position =
+        targetRoot.Position
+        - targetRoot.CFrame.LookVector * 4
+
+    localRoot.CFrame =
+        CFrame.lookAt(
+            position,
+            targetRoot.Position
+        )
+end
+
+--==================================================
+-- TP ABOVE
+--==================================================
+
+local function TPAbove()
+
+    local target = GetTarget()
+
+    if not target then
+        Yamin.Notify(
+            "TP Above",
+            "Select a player first."
+        )
+
+        return
+    end
+
+    local targetRoot = GetRoot(target)
+
+    local localCharacter = LocalPlayer.Character
+    local localRoot =
+        localCharacter
+        and localCharacter:FindFirstChild("HumanoidRootPart")
+
+    if not targetRoot or not localRoot then
+        return
+    end
+
+    local position =
+        targetRoot.Position
+        + Vector3.new(0, 8, 0)
+
+    localRoot.CFrame =
+        CFrame.lookAt(
+            position,
+            targetRoot.Position
+        )
+end
+
+--==================================================
+-- SPECTATE
+--==================================================
+
+local function StopSpectating()
+
+    TrollSettings.Spectating = false
+
+    local camera = workspace.CurrentCamera
+    local hum =
+        LocalPlayer.Character
+        and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+
+    if camera and hum then
+        camera.CameraSubject = hum
+    end
+end
+
+local function StartSpectating()
+
+    local target = GetTarget()
+
+    if not target then
+        Yamin.Notify(
+            "Spectate",
+            "Select a player first."
+        )
+
+        return
+    end
+
+    local targetHumanoid = GetHumanoid(target)
+
+    if not targetHumanoid then
+        return
+    end
+
+    local camera = workspace.CurrentCamera
+
+    if camera then
+        camera.CameraSubject = targetHumanoid
+        TrollSettings.Spectating = true
+    end
+end
+
+--==================================================
+-- CAMERA LOCK
+--==================================================
+
+local CameraLockConnection
+
+local function StopCameraLock()
+
+    TrollSettings.CameraLock = false
+
+    if CameraLockConnection then
+        CameraLockConnection:Disconnect()
+        CameraLockConnection = nil
+    end
+end
+
+local function StartCameraLock()
+
+    local target = GetTarget()
+
+    if not target then
+        Yamin.Notify(
+            "Camera Lock",
+            "Select a player first."
+        )
+
+        return
+    end
+
+    StopCameraLock()
+
+    TrollSettings.CameraLock = true
+
+    CameraLockConnection =
+        RunService.RenderStepped:Connect(function()
+
+            if not TrollSettings.CameraLock then
+                return
+            end
+
+            local currentTarget = GetTarget()
+
+            if not currentTarget then
+                StopCameraLock()
+                return
+            end
+
+            local targetRoot =
+                GetRoot(currentTarget)
+
+            local camera =
+                workspace.CurrentCamera
+
+            if not targetRoot or not camera then
+                return
+            end
+
+            local cameraPosition =
+                camera.CFrame.Position
+
+            camera.CFrame =
+                CFrame.lookAt(
+                    cameraPosition,
+                    targetRoot.Position
+                )
+        end)
+end
+
+--==================================================
+-- PLAYER LIST UI
+--==================================================
+
+Yamin.RegisterSection("Troll", function(parent)
+
+    --==============================================
+    -- SELECTED PLAYER
+    --==============================================
+
+    local SelectedCard = Yamin.CreateCard(
+        parent,
+        "Selected Player",
+        "Choose a player from the list below."
+    )
+
+    local SelectedLabel = Instance.new("TextLabel")
+
+    SelectedLabel.Parent = SelectedCard
+    SelectedLabel.Position = UDim2.fromOffset(15, 47)
+    SelectedLabel.Size = UDim2.new(1, -30, 0, 20)
+    SelectedLabel.BackgroundTransparency = 1
+    SelectedLabel.Text = "No player selected"
+    SelectedLabel.TextColor3 = Yamin.Config.Colors.Accent
+    SelectedLabel.Font = Enum.Font.GothamMedium
+    SelectedLabel.TextSize = 11
+    SelectedLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+    SelectedCard.Size =
+        UDim2.new(1, 0, 0, 75)
+
+    --==============================================
+    -- PLAYER LIST
+    --==============================================
+
+    local PlayerListCard = Yamin.CreateCard(
+        parent,
+        "Players",
+        "Click a player to select them."
+    )
+
+    PlayerListCard.Size =
+        UDim2.new(1, 0, 0, 250)
+
+    local PlayerList = Instance.new("ScrollingFrame")
+
+    PlayerList.Parent = PlayerListCard
+    PlayerList.Position = UDim2.fromOffset(12, 62)
+    PlayerList.Size = UDim2.new(1, -24, 1, -70)
+
+    PlayerList.BackgroundTransparency = 1
+    PlayerList.BorderSizePixel = 0
+
+    PlayerList.ScrollBarThickness = 2
+    PlayerList.ScrollBarImageColor3 =
+        Yamin.Config.Colors.Accent
+
+    PlayerList.AutomaticCanvasSize =
+        Enum.AutomaticSize.Y
+
+    PlayerList.CanvasSize = UDim2.new()
+
+    local PlayerLayout =
+        Instance.new("UIListLayout")
+
+    PlayerLayout.Parent = PlayerList
+    PlayerLayout.SortOrder =
+        Enum.SortOrder.Name
+    PlayerLayout.Padding =
+        UDim.new(0, 4)
+
+    local function RefreshPlayerList()
+
+        for _, child in ipairs(PlayerList:GetChildren()) do
+            if not child:IsA("UIListLayout") then
+                child:Destroy()
+            end
+        end
+
+        for _, player in ipairs(Players:GetPlayers()) do
+
+            if player ~= LocalPlayer then
+
+                local Button =
+                    Instance.new("TextButton")
+
+                Button.Parent = PlayerList
+
+                Button.Size =
+                    UDim2.new(1, -4, 0, 38)
+
+                Button.BackgroundColor3 =
+                    Yamin.Config.Colors.Card
+
+                Button.BorderSizePixel = 0
+
+                Button.Text = ""
+
+                Button.AutoButtonColor = false
+
+                local corner =
+                    Instance.new("UICorner")
+
+                corner.CornerRadius =
+                    UDim.new(0, 7)
+
+                corner.Parent = Button
+
+                local Display =
+                    Instance.new("TextLabel")
+
+                Display.Parent = Button
+
+                Display.Position =
+                    UDim2.fromOffset(10, 3)
+
+                Display.Size =
+                    UDim2.new(1, -20, 0, 17)
+
+                Display.BackgroundTransparency = 1
+
+                Display.Text =
+                    player.DisplayName
+
+                Display.TextColor3 =
+                    Yamin.Config.Colors.Text
+
+                Display.Font =
+                    Enum.Font.GothamMedium
+
+                Display.TextSize = 11
+
+                Display.TextXAlignment =
+                    Enum.TextXAlignment.Left
+
+                local Username =
+                    Instance.new("TextLabel")
+
+                Username.Parent = Button
+
+                Username.Position =
+                    UDim2.fromOffset(10, 19)
+
+                Username.Size =
+                    UDim2.new(1, -20, 0, 15)
+
+                Username.BackgroundTransparency = 1
+
+                Username.Text =
+                    "@" .. player.Name
+
+                Username.TextColor3 =
+                    Yamin.Config.Colors.SubText
+
+                Username.Font =
+                    Enum.Font.Gotham
+
+                Username.TextSize = 9
+
+                Username.TextXAlignment =
+                    Enum.TextXAlignment.Left
+
+                Button.MouseEnter:Connect(function()
+
+                    Yamin.Tween(
+                        Button,
+                        {
+                            BackgroundColor3 =
+                                Yamin.Config.Colors.CardHover
+                        },
+                        0.12
+                    )
+
+                end)
+
+                Button.MouseLeave:Connect(function()
+
+                    Yamin.Tween(
+                        Button,
+                        {
+                            BackgroundColor3 =
+                                Yamin.Config.Colors.Card
+                        },
+                        0.12
+                    )
+
+                end)
+
+                Button.MouseButton1Click:Connect(function()
+
+                    SelectPlayer(player)
+
+                    SelectedLabel.Text =
+                        player.DisplayName
+                        .. "  @"
+                        .. player.Name
+
+                end)
+            end
+        end
+    end
+
+    RefreshPlayerList()
+
+    Players.PlayerAdded:Connect(function()
+        task.wait(0.1)
+        RefreshPlayerList()
+    end)
+
+    Players.PlayerRemoving:Connect(function(player)
+
+        if TrollSettings.SelectedPlayer == player then
+
+            TrollSettings.SelectedPlayer = nil
+
+            StopPositionModes()
+            StopCameraLock()
+
+            SelectedLabel.Text =
+                "No player selected"
+        end
+
+        task.wait(0.1)
+
+        RefreshPlayerList()
+    end)
+
+    --==============================================
+    -- POSITION MODES
+    --==============================================
+
+    local ModesCard = Yamin.CreateCard(
+        parent,
+        "Player Modes",
+        "Continuously position yourself around the target."
+    )
+
+    Yamin.CreateToggle(
+        ModesCard,
+        "Stalk",
+        false,
+        function(enabled)
+
+            if enabled then
+
+                if not GetTarget() then
+                    Yamin.Notify(
+                        "Stalk",
+                        "Select a player first."
+                    )
+
+                    return
+                end
+
+                TrollSettings.Headsit = false
+                TrollSettings.Follow = false
+                TrollSettings.Orbit = false
+
+                TrollSettings.Stalk = true
+
+            else
+                TrollSettings.Stalk = false
+            end
+        end
+    )
+
+    Yamin.CreateToggle(
+        ModesCard,
+        "Headsit",
+        false,
+        function(enabled)
+
+            if enabled then
+
+                if not GetTarget() then
+                    Yamin.Notify(
+                        "Headsit",
+                        "Select a player first."
+                    )
+
+                    return
+                end
+
+                TrollSettings.Stalk = false
+                TrollSettings.Follow = false
+                TrollSettings.Orbit = false
+
+                TrollSettings.Headsit = true
+
+            else
+                TrollSettings.Headsit = false
+            end
+        end
+    )
+
+    Yamin.CreateToggle(
+        ModesCard,
+        "Follow",
+        false,
+        function(enabled)
+
+            if enabled then
+
+                if not GetTarget() then
+                    Yamin.Notify(
+                        "Follow",
+                        "Select a player first."
+                    )
+
+                    return
+                end
+
+                TrollSettings.Stalk = false
+                TrollSettings.Headsit = false
+                TrollSettings.Orbit = false
+
+                TrollSettings.Follow = true
+
+            else
+                TrollSettings.Follow = false
+            end
+        end
+    )
+
+    Yamin.CreateToggle(
+        ModesCard,
+        "Orbit",
+        false,
+        function(enabled)
+
+            if enabled then
+
+                if not GetTarget() then
+                    Yamin.Notify(
+                        "Orbit",
+                        "Select a player first."
+                    )
+
+                    return
+                end
+
+                TrollSettings.Stalk = false
+                TrollSettings.Headsit = false
+                TrollSettings.Follow = false
+
+                TrollSettings.Orbit = true
+
+            else
+                TrollSettings.Orbit = false
+            end
+        end
+    )
+
+    --==============================================
+    -- TELEPORT
+    --==============================================
+
+    local TeleportCard = Yamin.CreateCard(
+        parent,
+        "Target Teleports",
+        "Quickly move relative to your selected player."
+    )
+
+    Yamin.CreateButton(
+        TeleportCard,
+        "TP Behind",
+        function()
+            TPBehind()
+        end
+    )
+
+    Yamin.CreateButton(
+        TeleportCard,
+        "TP Above",
+        function()
+            TPAbove()
+        end
+    )
+
+    --==============================================
+    -- CAMERA
+    --==============================================
+
+    local CameraCard = Yamin.CreateCard(
+        parent,
+        "Target Camera",
+        "View or lock your camera onto the selected player."
+    )
+
+    Yamin.CreateButton(
+        CameraCard,
+        "Spectate Target",
+        function()
+            StartSpectating()
+        end
+    )
+
+    Yamin.CreateButton(
+        CameraCard,
+        "Stop Spectating",
+        function()
+            StopSpectating()
+        end
+    )
+
+    Yamin.CreateToggle(
+        CameraCard,
+        "Camera Lock",
+        false,
+        function(enabled)
+
+            if enabled then
+                StartCameraLock()
+            else
+                StopCameraLock()
+            end
+
+        end
+    )
+
+end)
+
+--==================================================
+-- OPEN TROLL
+--==================================================
+
+Yamin.OpenSection("Troll")
+--==================================================
+-- YAMIN HUB - PART 4
+-- AURA
+--==================================================
+
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+
+local Yamin = _G.YaminHUB
+if not Yamin then
+    warn("Yamin HUB Part 1 is required.")
+    return
+end
+
+local LocalPlayer = Players.LocalPlayer
+
+--==================================================
+-- SETTINGS
+--==================================================
+
+local AuraSettings = {
+    AuraFly = false,
+    FlySpeed = 65,
+    Acceleration = 8,
+
+    ActivePack = "Adidas Aura",
+
+    AngelBundle = "57393899235237",
+    AdidasAuraBundle = "4294795",
+    AdidasCommunityBundle = "2623795",
 }
 
 --==================================================
--- NOTIFICATION OVERRIDE
+-- ANIMATION PACK DATA
 --==================================================
 
-local OriginalNotify = Notify
+local AnimationPacks = {
 
-Notify = function(Message, Duration)
-    if not HubSettings.Notifications then
-        return
+    ["Adidas Aura"] = {
+
+        Idle = 110211186840347,
+        Idle2 = 114191137265065,
+        Idle3 = 99129837931148,
+
+        Walk = 83842218823011,
+        Run = 118320322718866,
+
+        Jump = 109996626521204,
+        Climb = 97824616490448,
+        Fall = 95603166884636,
+
+        Swim = 134530128383903,
+        SwimIdle = 94922130551805,
+    },
+
+    ["Adidas Community"] = {
+
+        Idle = 122257458498464,
+        Idle2 = 102357151005774,
+        Idle3 = 89262795687364,
+
+        Walk = 122150855457006,
+        Run = 82598234841035,
+
+        Jump = 75290611992385,
+        Climb = 88763136693023,
+        Fall = 98600215928904,
+
+        Swim = 133308483266208,
+        SwimIdle = 109346520324160,
+    },
+}
+
+--==================================================
+-- CHARACTER
+--==================================================
+
+local Character
+local Humanoid
+local Root
+
+local function RefreshCharacter()
+
+    Character = LocalPlayer.Character
+
+    if not Character then
+        return false
     end
 
-    OriginalNotify(Message, Duration)
+    Humanoid =
+        Character:FindFirstChildOfClass("Humanoid")
+
+    Root =
+        Character:FindFirstChild("HumanoidRootPart")
+
+    return Humanoid ~= nil and Root ~= nil
 end
 
---==================================================
--- CAMERA
---==================================================
+RefreshCharacter()
 
-local DefaultFOV = 70
+LocalPlayer.CharacterAdded:Connect(function(char)
 
-local function SetFOV(Value)
-    Value = math.clamp(Value, 40, 120)
+    Character = char
 
-    HubSettings.CameraFOV = Value
+    Humanoid =
+        char:WaitForChild("Humanoid", 10)
 
-    local Camera = workspace.CurrentCamera
+    Root =
+        char:WaitForChild("HumanoidRootPart", 10)
 
-    if Camera then
-        Camera.FieldOfView = Value
-    end
-end
+    AuraSettings.AuraFly = false
 
-local function ResetCamera()
-    HubSettings.CameraFOV = DefaultFOV
-
-    local Camera = workspace.CurrentCamera
-
-    if Camera then
-        Camera.FieldOfView = DefaultFOV
-    end
-
-    Notify("Camera reset.")
-end
+end)
 
 --==================================================
--- ANIMATION
+-- ANIMATION ENGINE
 --==================================================
 
-local CurrentAnimationTrack = nil
+local CurrentTrack
 
 local function StopAnimation()
-    if CurrentAnimationTrack then
+
+    if CurrentTrack then
+
         pcall(function()
-            CurrentAnimationTrack:Stop()
-            CurrentAnimationTrack:Destroy()
+            CurrentTrack:Stop(0.15)
+            CurrentTrack:Destroy()
         end)
 
-        CurrentAnimationTrack = nil
+        CurrentTrack = nil
+
     end
+
 end
 
-local function PlayAnimation(AnimationId)
+local function PlayAnimation(id, looped)
 
-    if not HubSettings.AnimationEffects then
+    if not Humanoid or not id then
         return
     end
 
-    local Hum = GetHumanoid()
-
-    if not Hum then
-        return
-    end
-
-    local Animator = Hum:FindFirstChildOfClass("Animator")
+    local Animator =
+        Humanoid:FindFirstChildOfClass("Animator")
 
     if not Animator then
+
         Animator = Instance.new("Animator")
-        Animator.Parent = Hum
+        Animator.Parent = Humanoid
+
     end
 
     StopAnimation()
 
-    local Animation = Instance.new("Animation")
-    Animation.AnimationId = "rbxassetid://" .. tostring(AnimationId)
+    local Animation =
+        Instance.new("Animation")
 
-    local Success, Track = pcall(function()
-        return Animator:LoadAnimation(Animation)
+    Animation.AnimationId =
+        "rbxassetid://" .. tostring(id)
+
+    local success, track =
+        pcall(function()
+            return Animator:LoadAnimation(Animation)
+        end)
+
+    if not success or not track then
+        Animation:Destroy()
+        return
+    end
+
+    track.Priority =
+        Enum.AnimationPriority.Action
+
+    track.Looped =
+        looped ~= false
+
+    track:Play(0.15)
+
+    CurrentTrack = track
+
+end
+
+--==================================================
+-- CURRENT PACK ANIMATION
+--==================================================
+
+local function GetPack()
+
+    return AnimationPacks[
+        AuraSettings.ActivePack
+    ]
+
+end
+
+local function PlayPackAnimation(name)
+
+    local pack = GetPack()
+
+    if not pack then
+        return
+    end
+
+    local id = pack[name]
+
+    if id then
+        PlayAnimation(id, true)
+    end
+
+end
+
+--==================================================
+-- FLY ANIMATION STATE
+--==================================================
+
+local CurrentFlyState = ""
+
+local function SetFlyAnimation(state)
+
+    if CurrentFlyState == state then
+        return
+    end
+
+    CurrentFlyState = state
+
+    local pack = GetPack()
+
+    if not pack then
+        return
+    end
+
+    -- Map flight states to the animation pack
+
+    if state == "Hover" then
+
+        PlayPackAnimation("Idle")
+
+    elseif state == "Forward" then
+
+        PlayPackAnimation("Run")
+
+    elseif state == "Backward" then
+
+        PlayPackAnimation("Walk")
+
+    elseif state == "Left" then
+
+        PlayPackAnimation("Walk")
+
+    elseif state == "Right" then
+
+        PlayPackAnimation("Walk")
+
+    elseif state == "Up" then
+
+        PlayPackAnimation("Jump")
+
+    elseif state == "Down" then
+
+        PlayPackAnimation("Fall")
+
+    end
+
+end
+
+--==================================================
+-- ANGEL BUNDLE
+--==================================================
+
+local function ActivateAngel()
+
+    local success, err =
+        pcall(function()
+
+            getgenv().bundle =
+                AuraSettings.AngelBundle
+
+            loadstring(
+                game:HttpGet(
+                    "https://raw.githubusercontent.com/Bac0nHck/Scripts/refs/heads/main/InstantBundle.lua"
+                )
+            )()
+
+        end)
+
+    if success then
+
+        Yamin.Notify(
+            "Angel",
+            "Angel bundle activated."
+        )
+
+    else
+
+        warn(
+            "[Yamin HUB] Angel error:",
+            err
+        )
+
+        Yamin.Notify(
+            "Angel",
+            "Failed to activate Angel."
+        )
+
+    end
+
+end
+
+--==================================================
+-- AURA FLY
+--==================================================
+
+local FlyConnection
+local FlyVelocity = Vector3.zero
+
+local OldAutoRotate = true
+local OldPlatformStand = false
+
+local function StopAuraFly()
+
+    AuraSettings.AuraFly = false
+
+    if FlyConnection then
+
+        FlyConnection:Disconnect()
+        FlyConnection = nil
+
+    end
+
+    StopAnimation()
+
+    if Humanoid then
+
+        Humanoid.AutoRotate =
+            OldAutoRotate
+
+        Humanoid.PlatformStand =
+            OldPlatformStand
+
+    end
+
+    if Root then
+
+        Root.AssemblyLinearVelocity =
+            Vector3.zero
+
+        Root.AssemblyAngularVelocity =
+            Vector3.zero
+
+    end
+
+    FlyVelocity =
+        Vector3.zero
+
+    CurrentFlyState = ""
+
+end
+
+local function StartAuraFly()
+
+    if AuraSettings.AuraFly then
+        return
+    end
+
+    if not RefreshCharacter() then
+
+        Yamin.Notify(
+            "Aura Fly",
+            "Character not ready."
+        )
+
+        return
+
+    end
+
+    OldAutoRotate =
+        Humanoid.AutoRotate
+
+    OldPlatformStand =
+        Humanoid.PlatformStand
+
+    AuraSettings.AuraFly = true
+
+    Humanoid.AutoRotate = false
+    Humanoid.PlatformStand = true
+
+    FlyVelocity =
+        Vector3.zero
+
+    CurrentFlyState = ""
+
+    SetFlyAnimation("Hover")
+
+    FlyConnection =
+        RunService.RenderStepped:Connect(
+            function(dt)
+
+                if not AuraSettings.AuraFly then
+                    return
+                end
+
+                if not Character
+                    or not Character.Parent
+                    or not Humanoid
+                    or Humanoid.Health <= 0
+                    or not Root
+                    or not Root.Parent then
+
+                    StopAuraFly()
+                    return
+
+                end
+
+                local Camera =
+                    workspace.CurrentCamera
+
+                if not Camera then
+                    return
+                end
+
+                --========================================
+                -- CAMERA DIRECTIONS
+                --========================================
+
+                local Forward =
+                    Camera.CFrame.LookVector
+
+                local Right =
+                    Camera.CFrame.RightVector
+
+                local Up =
+                    Camera.CFrame.UpVector
+
+                local Direction =
+                    Vector3.zero
+
+                -- W
+
+                if UserInputService:IsKeyDown(
+                    Enum.KeyCode.W
+                ) then
+
+                    Direction += Forward
+
+                end
+
+                -- S
+
+                if UserInputService:IsKeyDown(
+                    Enum.KeyCode.S
+                ) then
+
+                    Direction -= Forward
+
+                end
+
+                -- D
+
+                if UserInputService:IsKeyDown(
+                    Enum.KeyCode.D
+                ) then
+
+                    Direction += Right
+
+                end
+
+                -- A
+
+                if UserInputService:IsKeyDown(
+                    Enum.KeyCode.A
+                ) then
+
+                    Direction -= Right
+
+                end
+
+                -- SPACE
+
+                if UserInputService:IsKeyDown(
+                    Enum.KeyCode.Space
+                ) then
+
+                    Direction += Up
+
+                end
+
+                -- CTRL
+
+                if UserInputService:IsKeyDown(
+                    Enum.KeyCode.LeftControl
+                ) then
+
+                    Direction -= Up
+
+                end
+
+                if Direction.Magnitude > 0 then
+                    Direction = Direction.Unit
+                end
+
+                --========================================
+                -- SPEED
+                --========================================
+
+                local TargetVelocity =
+                    Direction
+                    * AuraSettings.FlySpeed
+
+                local Alpha =
+                    math.clamp(
+                        AuraSettings.Acceleration
+                        * dt
+                        * 10,
+                        0,
+                        1
+                    )
+
+                FlyVelocity =
+                    FlyVelocity:Lerp(
+                        TargetVelocity,
+                        Alpha
+                    )
+
+                --========================================
+                -- STATE
+                --========================================
+
+                local State = "Hover"
+
+                if Direction.Magnitude > 0.05 then
+
+                    local Relative =
+                        Camera.CFrame:VectorToObjectSpace(
+                            Direction
+                        )
+
+                    if Relative.Y > 0.55 then
+
+                        State = "Up"
+
+                    elseif Relative.Y < -0.55 then
+
+                        State = "Down"
+
+                    elseif Relative.Z < -0.55 then
+
+                        State = "Forward"
+
+                    elseif Relative.Z > 0.55 then
+
+                        State = "Backward"
+
+                    elseif Relative.X > 0.55 then
+
+                        State = "Right"
+
+                    elseif Relative.X < -0.55 then
+
+                        State = "Left"
+
+                    end
+
+                end
+
+                SetFlyAnimation(State)
+
+                --========================================
+                -- WALL CHECK
+                --========================================
+
+                local Movement =
+                    FlyVelocity * dt
+
+                if Movement.Magnitude > 0 then
+
+                    local Params =
+                        RaycastParams.new()
+
+                    Params.FilterType =
+                        Enum.RaycastFilterType.Exclude
+
+                    Params.FilterDescendantsInstances = {
+                        Character
+                    }
+
+                    Params.IgnoreWater = true
+
+                    local Hit =
+                        workspace:Raycast(
+                            Root.Position,
+                            Movement,
+                            Params
+                        )
+
+                    if Hit then
+
+                        local Normal =
+                            Hit.Normal
+
+                        local IntoWall =
+                            FlyVelocity:Dot(Normal)
+
+                        if IntoWall < 0 then
+
+                            FlyVelocity =
+                                FlyVelocity
+                                - Normal * IntoWall
+
+                        end
+
+                        Movement =
+                            FlyVelocity * dt
+
+                    end
+
+                end
+
+                --========================================
+                -- MOVE
+                --========================================
+
+                local NewPosition =
+                    Root.Position + Movement
+
+                local LookDirection
+
+                if FlyVelocity.Magnitude > 0.5 then
+
+                    LookDirection =
+                        FlyVelocity.Unit
+
+                else
+
+                    LookDirection =
+                        Camera.CFrame.LookVector
+
+                end
+
+                local TargetCFrame =
+                    CFrame.lookAt(
+                        NewPosition,
+                        NewPosition + LookDirection,
+                        Vector3.yAxis
+                    )
+
+                Root.CFrame =
+                    Root.CFrame:Lerp(
+                        TargetCFrame,
+                        math.clamp(dt * 12, 0, 1)
+                    )
+
+                Root.AssemblyLinearVelocity =
+                    Vector3.zero
+
+                Root.AssemblyAngularVelocity =
+                    Vector3.zero
+
+            end
+        )
+
+end
+
+--==================================================
+-- EMOTES
+--==================================================
+
+local function AuraEmote(emote)
+
+    if not RefreshCharacter() then
+        return
+    end
+
+    pcall(function()
+
+        Humanoid:SetEmote(
+            string.lower(emote)
+        )
+
     end)
 
-    Animation:Destroy()
+end
 
-    if not Success or not Track then
-        Notify("Could not load animation.")
+--==================================================
+-- PACK SWITCHING
+--==================================================
+
+local function SetPack(packName)
+
+    if not AnimationPacks[packName] then
         return
     end
 
-    Track.Looped = true
-    Track:Play()
+    AuraSettings.ActivePack =
+        packName
 
-    CurrentAnimationTrack = Track
+    CurrentFlyState = ""
+
+    if AuraSettings.AuraFly then
+        SetFlyAnimation("Hover")
+    else
+        PlayPackAnimation("Idle")
+    end
+
+    Yamin.Notify(
+        "Aura",
+        packName .. " selected."
+    )
+
 end
 
 --==================================================
--- AURA
+-- UI
 --==================================================
 
-local AuraObjects = {}
+Yamin.RegisterSection(
+    "Aura",
+    function(parent)
+
+        --==============================================
+        -- AURA FLY
+        --==============================================
+
+        local FlyCard =
+            Yamin.CreateCard(
+                parent,
+                "Aura Fly",
+                "Smooth Angel-style flight."
+            )
+
+        Yamin.CreateToggle(
+            FlyCard,
+            "Aura Fly",
+            false,
+            function(enabled)
+
+                if enabled then
+                    StartAuraFly()
+                else
+                    StopAuraFly()
+                end
 
-local function RemoveAura()
-
-    for _, Object in ipairs(AuraObjects) do
-        if Object and Object.Parent then
-            Object:Destroy()
-        end
-    end
-
-    table.clear(AuraObjects)
-end
-
-local function CreateAura(Type)
-
-    RemoveAura()
-
-    if not Character or not Character.Parent then
-        UpdateCharacter()
-    end
-
-    local RootPart = GetRoot()
-
-    if not RootPart then
-        return
-    end
-
-    if Type == "Fire" then
-
-        local Fire = Instance.new("Fire")
-        Fire.Name = "YaminFireAura"
-        Fire.Size = 8
-        Fire.Heat = 8
-        Fire.Parent = RootPart
-
-        table.insert(AuraObjects, Fire)
-
-    elseif Type == "Smoke" then
-
-        local Smoke = Instance.new("Smoke")
-        Smoke.Name = "YaminSmokeAura"
-        Smoke.Size = 8
-        Smoke.RiseVelocity = 5
-        Smoke.Opacity = 0.35
-        Smoke.Parent = RootPart
-
-        table.insert(AuraObjects, Smoke)
-
-    elseif Type == "Sparkles" then
-
-        local Sparkles = Instance.new("Sparkles")
-        Sparkles.Name = "YaminSparklesAura"
-        Sparkles.SparkleColor = Config.Accent
-        Sparkles.Parent = RootPart
-
-        table.insert(AuraObjects, Sparkles)
-
-    elseif Type == "ForceField" then
-
-        local ForceField = Instance.new("ForceField")
-        ForceField.Name = "YaminForceField"
-        ForceField.Visible = true
-        ForceField.Parent = Character
-
-        table.insert(AuraObjects, ForceField)
-
-    elseif Type == "Highlight" then
-
-        local Highlight = Instance.new("Highlight")
-        Highlight.Name = "YaminAuraHighlight"
-        Highlight.FillColor = Config.Accent
-        Highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
-        Highlight.FillTransparency = 0.45
-        Highlight.OutlineTransparency = 0
-        Highlight.Parent = Character
-
-        table.insert(AuraObjects, Highlight)
-    end
-
-    Notify(Type .. " aura enabled.")
-end
-
--- Remove aura when character respawns
-Player.CharacterAdded:Connect(function()
-
-    task.wait(1)
-
-    RemoveAura()
-
-    if HubSettings.CameraFOV ~= DefaultFOV then
-        SetFOV(HubSettings.CameraFOV)
-    end
-end)
-
---==================================================
--- CAMERA TAB
---==================================================
-
-RegisterSection("Camera", function(Container)
-
-    local FOVCard = CreateCard(
-        "Field of View",
-        "Change your camera's field of view."
-    )
-
-    CreateButton(
-        FOVCard,
-        "70",
-        function()
-            SetFOV(70)
-            Notify("FOV set to 70.")
-        end
-    )
-
-    local WideCard = CreateCard(
-        "Wide FOV",
-        "A wider camera view."
-    )
-
-    CreateButton(
-        WideCard,
-        "90",
-        function()
-            SetFOV(90)
-            Notify("FOV set to 90.")
-        end
-    )
-
-    local UltraWideCard = CreateCard(
-        "Ultra Wide",
-        "Very wide camera view."
-    )
-
-    CreateButton(
-        UltraWideCard,
-        "110",
-        function()
-            SetFOV(110)
-            Notify("FOV set to 110.")
-        end
-    )
-
-    local ResetCard = CreateCard(
-        "Reset Camera",
-        "Return the camera to default."
-    )
-
-    CreateButton(
-        ResetCard,
-        "RESET",
-        function()
-            ResetCamera()
-        end
-    )
-end)
-
---==================================================
--- ANIMATIONS TAB
---==================================================
-
-RegisterSection("Animations", function(Container)
-
-    local StopCard = CreateCard(
-        "Stop Animation",
-        "Stop the current custom animation."
-    )
-
-    CreateButton(
-        StopCard,
-        "STOP",
-        function()
-            StopAnimation()
-            Notify("Animation stopped.")
-        end
-    )
-
-    -- Example animation slots.
-    -- Replace these IDs with animations you own/use in your game.
-
-    local Animation1 = CreateCard(
-        "Animation Slot 1",
-        "Custom animation slot."
-    )
-
-    CreateButton(
-        Animation1,
-        "PLAY",
-        function()
-            Notify("Add your animation ID to Slot 1.")
-        end
-    )
-
-    local Animation2 = CreateCard(
-        "Animation Slot 2",
-        "Custom animation slot."
-    )
-
-    CreateButton(
-        Animation2,
-        "PLAY",
-        function()
-            Notify("Add your animation ID to Slot 2.")
-        end
-    )
-
-    local EffectsCard = CreateCard(
-        "Animation Effects",
-        "Enable or disable animation effects."
-    )
-
-    CreateToggle(
-        EffectsCard,
-        "Effects",
-        function(Value)
-            HubSettings.AnimationEffects = Value
-        end
-    )
-end)
-
---==================================================
--- AURA TAB
---==================================================
-
-RegisterSection("Aura", function(Container)
-
-    local FireCard = CreateCard(
-        "Fire Aura",
-        "Surround your character with fire."
-    )
-
-    CreateButton(
-        FireCard,
-        "FIRE",
-        function()
-            CreateAura("Fire")
-        end
-    )
-
-    local SmokeCard = CreateCard(
-        "Smoke Aura",
-        "Create a smoke effect."
-    )
-
-    CreateButton(
-        SmokeCard,
-        "SMOKE",
-        function()
-            CreateAura("Smoke")
-        end
-    )
-
-    local SparkleCard = CreateCard(
-        "Sparkles",
-        "Add sparkles around your character."
-    )
-
-    CreateButton(
-        SparkleCard,
-        "SPARKLES",
-        function()
-            CreateAura("Sparkles")
-        end
-    )
-
-    local ForceCard = CreateCard(
-        "ForceField",
-        "Add a force-field visual."
-    )
-
-    CreateButton(
-        ForceCard,
-        "FORCEFIELD",
-        function()
-            CreateAura("ForceField")
-        end
-    )
-
-    local HighlightCard = CreateCard(
-        "Highlight Aura",
-        "Highlight your character."
-    )
-
-    CreateButton(
-        HighlightCard,
-        "HIGHLIGHT",
-        function()
-            CreateAura("Highlight")
-        end
-    )
-
-    local RemoveCard = CreateCard(
-        "Remove Aura",
-        "Remove your current aura."
-    )
-
-    CreateButton(
-        RemoveCard,
-        "REMOVE",
-        function()
-            RemoveAura()
-            Notify("Aura removed.")
-        end
-    )
-end)
-
---==================================================
--- SETTINGS TAB
---==================================================
-
-RegisterSection("Settings", function(Container)
-
-    local NotificationCard = CreateCard(
-        "Notifications",
-        "Show Yamin HUB notifications."
-    )
-
-    CreateToggle(
-        NotificationCard,
-        "Notifications",
-        function(Value)
-            HubSettings.Notifications = Value
-        end
-    )
-
-    local AnimationCard = CreateCard(
-        "Animation Effects",
-        "Allow custom animation effects."
-    )
-
-    CreateToggle(
-        AnimationCard,
-        "Animations",
-        function(Value)
-            HubSettings.AnimationEffects = Value
-
-            if not Value then
-                StopAnimation()
             end
-        end
-    )
+        )
 
-    local PurpleCard = CreateCard(
-        "Purple Theme",
-        "Use the default Yamin HUB theme."
-    )
+        Yamin.CreateButton(
+            FlyCard,
+            "Fly Speed • 65",
+            function()
 
-    CreateButton(
-        PurpleCard,
-        "PURPLE",
-        function()
-            Config.Accent = Color3.fromRGB(125, 75, 255)
-            Config.AccentDark = Color3.fromRGB(95, 50, 210)
+                AuraSettings.FlySpeed = 65
 
-            AccentLine.BackgroundColor3 = Config.Accent
+                Yamin.Notify(
+                    "Aura Fly",
+                    "Speed: 65"
+                )
 
-            Notify("Purple theme applied.")
-        end
-    )
-
-    local BlueCard = CreateCard(
-        "Blue Theme",
-        "Change the accent color."
-    )
-
-    CreateButton(
-        BlueCard,
-        "BLUE",
-        function()
-            Config.Accent = Color3.fromRGB(55, 130, 255)
-            Config.AccentDark = Color3.fromRGB(35, 95, 210)
-
-            AccentLine.BackgroundColor3 = Config.Accent
-
-            Notify("Blue theme applied.")
-        end
-    )
-
-    local ResetCard = CreateCard(
-        "Reset Character",
-        "Reset your character."
-    )
-
-    CreateButton(
-        ResetCard,
-        "RESET",
-        function()
-
-            local Hum = GetHumanoid()
-
-            if Hum then
-                Hum.Health = 0
             end
-        end
-    )
+        )
 
-    local HideCard = CreateCard(
-        "Hide UI",
-        "Hide Yamin HUB. Press RightShift to show it again."
-    )
+        Yamin.CreateButton(
+            FlyCard,
+            "Fly Speed • 120",
+            function()
 
-    CreateButton(
-        HideCard,
-        "HIDE",
-        function()
-            Gui.Enabled = false
-        end
-    )
-end)
+                AuraSettings.FlySpeed = 120
+
+                Yamin.Notify(
+                    "Aura Fly",
+                    "Speed: 120"
+                )
+
+            end
+        )
+
+        Yamin.CreateButton(
+            FlyCard,
+            "Fly Speed • 200",
+            function()
+
+                AuraSettings.FlySpeed = 200
+
+                Yamin.Notify(
+                    "Aura Fly",
+                    "Speed: 200"
+                )
+
+            end
+        )
+
+        --==============================================
+        -- ANGEL
+        --==============================================
+
+        local AngelCard =
+            Yamin.CreateCard(
+                parent,
+                "Angel Aura",
+                "Activate the Angel bundle."
+            )
+
+        Yamin.CreateButton(
+            AngelCard,
+            "Activate Angel",
+            function()
+
+                ActivateAngel()
+
+            end
+        )
+
+        --==============================================
+        -- ADIDAS AURA
+        --==============================================
+
+        local AuraCard =
+            Yamin.CreateCard(
+                parent,
+                "Adidas Aura",
+                "adidas aura animation pack."
+            )
+
+        Yamin.CreateButton(
+            AuraCard,
+            "Use Adidas Aura",
+            function()
+
+                SetPack(
+                    "Adidas Aura"
+                )
+
+            end
+        )
+
+        --==============================================
+        -- ADIDAS COMMUNITY
+        --==============================================
+
+        local CommunityCard =
+            Yamin.CreateCard(
+                parent,
+                "Adidas Community",
+                "adidas Community animation pack."
+            )
+
+        Yamin.CreateButton(
+            CommunityCard,
+            "Use Adidas Community",
+            function()
+
+                SetPack(
+                    "Adidas Community"
+                )
+
+            end
+        )
+
+        --==============================================
+        -- EMOTES
+        --==============================================
+
+        local EmoteCard =
+            Yamin.CreateCard(
+                parent,
+                "Aura Emotes",
+                "Humanoid:SetEmote()"
+            )
+
+        Yamin.CreateButton(
+            EmoteCard,
+            "Wave",
+            function()
+                AuraEmote("wave")
+            end
+        )
+
+        Yamin.CreateButton(
+            EmoteCard,
+            "Point",
+            function()
+                AuraEmote("point")
+            end
+        )
+
+        Yamin.CreateButton(
+            EmoteCard,
+            "Cheer",
+            function()
+                AuraEmote("cheer")
+            end
+        )
+
+        Yamin.CreateButton(
+            EmoteCard,
+            "Laugh",
+            function()
+                AuraEmote("laugh")
+            end
+        )
+
+        Yamin.CreateButton(
+            EmoteCard,
+            "Dance",
+            function()
+                AuraEmote("dance")
+            end
+        )
+
+    end
+)
 
 --==================================================
--- FINAL STARTUP
+-- OPEN AURA
 --==================================================
 
-task.wait(0.2)
-
-OpenSection("Movement")
-
-print("======================================")
-print("⚡ YAMIN HUB - PART 4 LOADED")
-print("🎥 Camera system ready")
-print("🪽 Animation system ready")
-print("✨ Aura system ready")
-print("⚙ Settings system ready")
-print("======================================")
-
-Notify("⚡ Yamin HUB fully loaded!", 4)
+Yamin.OpenSection("Aura")
