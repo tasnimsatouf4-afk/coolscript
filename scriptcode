@@ -1,0 +1,23 @@
+local Players = game:GetService("Players")
+
+local player = Players.LocalPlayer
+local gui = Instance.new("ScreenGui")
+gui.Name = "LoadstringTest"
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0,400,0,200)
+frame.Position = UDim2.new(0.5,-200,0.5,-100)
+frame.BackgroundColor3 = Color3.fromRGB(30,30,40)
+frame.Parent = gui
+
+local text = Instance.new("TextLabel")
+text.Size = UDim2.new(1,0,1,0)
+text.BackgroundTransparency = 1
+text.Text = "✅ LOADSTRING WORKS!"
+text.TextColor3 = Color3.new(1,1,1)
+text.TextSize = 30
+text.Font = Enum.Font.GothamBold
+text.Parent = frame
+
+print("Loadstring test loaded!")
